@@ -27,7 +27,7 @@ export default function PostCard({ post }) {
     >
       <div className="flex items-center gap-3">
         {/* Avatar */}
-        <div className="h-12 w-12 rounded-full overflow-hidden border border-gray-300">
+        <div className="h-12 w-12 rounded-full overflow-hidden border border-[var(--card-avatar-border)]">
           <img
             src={avatarSrc}
             alt={post.authorName}
@@ -38,7 +38,7 @@ export default function PostCard({ post }) {
         <div className="flex-1 min-w-0">
           {/* Title + badge */}
           <div className="flex items-center gap-2">
-            <button className="text-blue-700 font-semibold truncate hover:underline" onClick={(e)=>{e.preventDefault();navigate(`/post/${post.id}`);}}>
+            <button className="text-[var(--card-title)] font-semibold truncate hover:underline" onClick={(e)=>{e.preventDefault();navigate(`/post/${post.id}`);}}>
               {post.title || post.body?.slice(0, 40) || "Untitled post"}
             </button>
             {post.verifiedCount > 0 && (
@@ -47,7 +47,7 @@ export default function PostCard({ post }) {
           </div>
 
           {/* Author + date */}
-          <p className="text-sm text-gray-600 truncate">
+          <p className="text-sm text-[var(--card-meta)] truncate">
             {post.authorName} · Posted {humanDate(post.createdAt)}
           </p>
         </div>

@@ -5,7 +5,7 @@ export default function CategoryChips({ counts, filters, setFilter, resetFilters
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
       <button
-        className={`px-2.5 py-1 rounded-full text-sm border ${filters.featured ? "bg-yellow-100 border-yellow-400" : "bg-white/50 border-gray-300"}`}
+        className={`px-2.5 py-1 rounded-full text-sm border ${filters.featured ? "bg-[var(--chip-featured-bg)] border-[var(--chip-featured-border)]" : "bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]"}`}
         onClick={() => {
           setFilter("featured", !filters.featured);
           setFilter("all", false);
@@ -15,7 +15,7 @@ export default function CategoryChips({ counts, filters, setFilter, resetFilters
       </button>
 
       <button
-        className={`px-2.5 py-1 rounded-full text-sm border ${filters.ranked ? "bg-orange-100 border-orange-400" : "bg-white/50 border-gray-300"}`}
+        className={`px-2.5 py-1 rounded-full text-sm border ${filters.ranked ? "bg-[var(--chip-ranked-bg)] border-[var(--chip-ranked-border)]" : "bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]"}`}
         onClick={() => {
           setFilter("ranked", !filters.ranked);
           setFilter("all", false);
@@ -25,7 +25,7 @@ export default function CategoryChips({ counts, filters, setFilter, resetFilters
       </button>
 
       <button
-        className={`px-2.5 py-1 rounded-full text-sm border ${filters.verified ? "bg-green-100 border-green-400" : "bg-white/50 border-gray-300"}`}
+        className={`px-2.5 py-1 rounded-full text-sm border ${filters.verified ? "bg-[var(--chip-verified-bg)] border-[var(--chip-verified-border)]" : "bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]"}`}
         onClick={() => {
           setFilter("verified", !filters.verified);
           setFilter("all", false);
@@ -35,15 +35,15 @@ export default function CategoryChips({ counts, filters, setFilter, resetFilters
       </button>
 
       <button
-        className={`px-2.5 py-1 rounded-full text-sm border ${filters.all ? "bg-blue-100 border-blue-400" : "bg-white/50 border-gray-300"}`}
+        className={`px-2.5 py-1 rounded-full text-sm border ${filters.all ? "bg-[var(--chip-all-bg)] border-[var(--chip-all-border)]" : "bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]"}`}
         onClick={resetFilters}
       >
         🔎 All ({counts.total})
       </button>
 
       {/* Placeholders for consistency with screenshots */}
-      <button className="px-2.5 py-1 rounded-full text-sm border bg-white/50 border-gray-300">📊 Show stats</button>
-      <button className="px-2.5 py-1 rounded-full text-sm border bg-white/50 border-gray-300">💬 Feedback</button>
+      <button className="px-2.5 py-1 rounded-full text-sm border bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]">📊 Show stats</button>
+      <button className="px-2.5 py-1 rounded-full text-sm border bg-[var(--chip-bg-default)] border-[var(--chip-border-default)]">💬 Feedback</button>
     </div>
   );
 }

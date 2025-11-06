@@ -52,7 +52,7 @@ if (verified) {
         {[...Array(checksToShow)].map((_, i) => (
           <CheckIcon
             key={i}
-            className="h-3.5 w-3.5 text-green-600 drop-shadow-sm"
+            className="h-3.5 w-3.5 text-[var(--verified-icon)] drop-shadow-sm"
             style={{ zIndex: 3 - i }}
           />
         ))}
@@ -70,11 +70,11 @@ if (verified) {
         }
       }}
       className={`${baseClasses} group inline-flex items-center justify-center rounded-full border text-xs font-medium transition-all duration-300
-      text-green-800 bg-gradient-to-r from-green-100 to-green-200 border-green-300 shadow-sm px-[0.2rem] hover:px-[0.5rem] py-[0.1rem]`}
+      text-[var(--verified-badge-text)] bg-gradient-to-r from-[var(--verified-badge-bg-start)] to-[var(--verified-badge-bg-end)] border-[var(--verified-badge-border)] shadow-sm px-[0.2rem] hover:px-[0.5rem] py-[0.1rem]`}
       style={{ fontFamily: "inherit" }}
     >
       <div className="flex items-center justify-center gap-0 group-hover:gap-1 transition-[gap] duration-300">
-        {renderChecks("text-green-600")}
+        {renderChecks("text-[var(--verified-icon)]")}
         <span
           className={`overflow-hidden inline-block transition-all duration-300 ease-in-out whitespace-nowrap ${
             open
@@ -99,13 +99,13 @@ if (verified) {
         }
       }}
       className={`${baseClasses} group inline-flex items-center justify-center rounded-full border text-xs font-medium transition-all duration-300
-      text-gray-600 bg-gray-100 border-gray-300 shadow-sm px-[0.2rem] hover:px-[0.5rem] py-[0.1rem]`}
+      text-[var(--unverified-badge-text)] bg-[var(--unverified-badge-bg)] border-[var(--unverified-badge-border)] shadow-sm px-[0.2rem] hover:px-[0.5rem] py-[0.1rem]`}
       style={{ fontFamily: "inherit" }}
     >
       <div className="flex items-center justify-center gap-0 group-hover:gap-1 transition-[gap] duration-300">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-3.5 w-3.5 text-gray-400"
+          className="h-3.5 w-3.5 text-[var(--unverified-icon)]"
           viewBox="0 0 20 20"
           fill="currentColor"
         >

@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function AlphabetSidebar({ letters, activeLetter, onSelect, show }) {
   const [visible, setVisible] = useState(false);
@@ -89,8 +89,8 @@ export default function AlphabetSidebar({ letters, activeLetter, onSelect, show 
           onClick={() => onSelect(letter)}
           className={`w-6 h-6 text-xs font-semibold rounded-full flex items-center justify-center transition-all duration-200 mb-[2px] ${
             activeLetter === letter
-              ? "bg-blue-600 text-white"
-              : "text-gray-600 hover:text-blue-600"
+              ? "bg-[var(--link)] text-white"
+              : "text-[var(--text-muted)] hover:text-[var(--link)]"
           }`}
         >
           {letter}

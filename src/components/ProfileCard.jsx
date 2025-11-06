@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import isNewProfile from "../utils/isNewProfile";
 import CopyButton from "./CopyButton";
 import { useFeedback } from "../store";
@@ -538,7 +538,7 @@ if (isVerified && isRanked) {
           </div>
 
           <div className="flex flex-col flex-grow overflow-hidden min-w-0">
-<span className="font-semibold text-blue-700 leading-tight truncate flex items-center gap-2">
+<span className="font-semibold text-[var(--card-title)] leading-tight truncate flex items-center gap-2">
   {profile.name}
   {(profile.address_verified || (profile.verified_links_count ?? 0) > 0) && (
     <VerifiedBadge
@@ -556,7 +556,7 @@ if (isVerified && isRanked) {
   )}
 </span>
 
-<div className="text-sm text-gray-500 flex flex-wrap items-center gap-x-2 gap-y-0.5 leading-snug mt-0.5">
+<div className="text-sm text-[var(--card-meta)] flex flex-wrap items-center gap-x-2 gap-y-0.5 leading-snug mt-0.5">
   <span>
     Joined{" "}
     {new Date(profile.joined_at || profile.created_at || profile.since).toLocaleString("default", {
@@ -628,7 +628,7 @@ if (isVerified && isRanked) {
         e.stopPropagation();
         setMenuOpen((prev) => !prev);
       }}
-      className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
+      className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--card-avatar-border)] bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
       title="More options"
     >
       ☰
@@ -723,7 +723,7 @@ if (isVerified && isRanked) {
         alert("Profile link copied to clipboard!");
       }
     }}
-    className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
+    className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--card-avatar-border)] bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
     title={`Share ${profile.name}`}
   >
 <img
@@ -964,7 +964,7 @@ if (isVerified && isRanked) {
               </span>
               <VerifiedBadge verified={link.is_verified} />
             </div>
-            <div className="flex items-center gap-2 mt-0.5 sm:mt-0 text-sm text-gray-600 truncate max-w-full sm:max-w-[60%]">
+            <div className="flex items-center gap-2 mt-0.5 sm:mt-0 text-sm text-[var(--card-meta)] truncate max-w-full sm:max-w-[60%]">
               <a
                 href={link.url}
                 target="_blank"

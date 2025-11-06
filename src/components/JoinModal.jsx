@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import ZcashAddressInput from "./ZcashAddressInput";
+import ZecbookAddressInput from "./ZecbookAddressInput";
 import ProfileEditor from "./ProfileEditor";
 import { useFeedback } from "../store";
 
-// Constants aligned with ZcashFeedback.jsx
+// Constants aligned with ZecbookFeedback.jsx
 const SIGNIN_ADDR =
   "u1qzt502u9fwh67s7an0e202c35mm0h534jaa648t4p2r6mhf30guxjjqwlkmvthahnz5myz2ev7neff5pmveh54xszv9njcmu5g2eent82ucpd3lwyzkmyrn6rytwsqefk475hl5tl4tu8yehc0z8w9fcf4zg6r03sq7lldx0uxph7c0lclnlc4qjwhu2v52dkvuntxr8tmpug3jntvm";
 const MIN_SIGNIN_AMOUNT = 0.001;
 
-// Lightweight copy of buildZcashEditMemo used for compact memo payloads
+// Lightweight copy of buildZecbookEditMemo used for compact memo payloads
 function buildCompactEditMemo(profile = {}, zid = "?", addr = "") {
   const fieldMap = { name: "n", bio: "b", profile_image_url: "i", links: "l" };
   const clean = Object.fromEntries(
@@ -37,6 +37,40 @@ function buildCompactEditMemo(profile = {}, zid = "?", addr = "") {
   return payload;
 }
 
+// Platforms & preview base
+const LINK_OPTIONS = [
+  "X (Twitter)",
+  "GitHub",
+  "Instagram",
+  "Reddit",
+  "LinkedIn",
+  "Discord",
+  "TikTok",
+  "Bluesky",
+  "Mastodon",
+  "Snapchat",
+  "Other (custom URL)",
+];
+const PLATFORM_BASE = {
+  "X (Twitter)": "https://x.com/",
+  "GitHub": "https://github.com/",
+  "Instagram": "https://instagram.com/",
+  "Reddit": "https://reddit.com/u/",
+  "LinkedIn": "https://linkedin.com/in/",
+  "Discord": "https://discord.com/users/",
+  "TikTok": "https://tiktok.com/@",
+  "Bluesky": "https://bsky.app/profile/",
+  "Mastodon": "https://mastodon.social/@",
+  "Snapchat": "https://snapchat.com/add/",
+};
+
+function previewFor(platform, value) {
+  if (platform === "Other (custom URL)") return value || "https://example.com";
+  const base = PLATFORM_BASE[platform] || "https://example.com/";
+  const v = value || (platform === "TikTok" ? "your_username" : "your_username");
+  return `${base}${v}`;
+}
+
 // Backend placeholders (reserved interfaces)
 async function apiCreateJoinSession(address) {
   // TODO: integrate Supabase or backend service
@@ -53,10 +87,13 @@ async function apiVerifyOtp(sessionId, code) {
 
 export default function JoinModal({ isOpen, onClose }) {
   const { pendingEdits } = useFeedback();
-  const [step, setStep] = useState(1); // 1 address, 2 profile, 3 verify
+  const [step, setStep] = useState(1); // 1 Name, 2 Address, 3 Referred, 4 Links, 5 Review
   const [address, setAddress] = useState("");
   const [sessionId, setSessionId] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [nameText, setNameText] = useState("");
+  const [referrer, setReferrer] = useState("");
+  const [links, setLinks] = useState([{ platform: "X (Twitter)", value: "" }]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -64,17 +101,32 @@ export default function JoinModal({ isOpen, onClose }) {
       setAddress("");
       setSessionId(null);
       setCopied(false);
+      setNameText("");
+      setReferrer("");
+      setLinks([{ platform: "X (Twitter)", value: "" }]);
     }
   }, [isOpen]);
 
   const isValidAddress = useMemo(() => {
     return typeof address === "string" && /^(u1|zs1|t1|tm)/.test(address);
   }, [address]);
+  const isValidName = useMemo(() => nameText.trim().length > 0, [nameText]);
+
+  const profileForMemo = useMemo(() => {
+    const linkArray = links
+      .map((l) => {
+        const v = (l.value || "").trim();
+        if (!v) return null;
+        if (l.platform === "Other (custom URL)") return `url:${v}`;
+        return `${l.platform}:${v}`;
+      })
+      .filter(Boolean);
+    return { name: nameText.trim(), address, links: linkArray };
+  }, [nameText, address, links]);
 
   const memoText = useMemo(() => {
-    const profile = { ...(pendingEdits?.profile || {}), links: pendingEdits?.l || [] };
-    return buildCompactEditMemo(profile, "?", address);
-  }, [pendingEdits?.profile, pendingEdits?.l, address]);
+    return buildCompactEditMemo(profileForMemo, "?", address);
+  }, [profileForMemo, address]);
 
   const uri = useMemo(() => {
     const params = new URLSearchParams();
@@ -88,18 +140,18 @@ export default function JoinModal({ isOpen, onClose }) {
       return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     };
     params.set("memo", base64url(memoText));
-    return `zcash:?${params.toString()}`;
+    return `zecbook:?${params.toString()}`;
   }, [memoText]);
 
   const handleNextFromAddress = async () => {
     const res = await apiCreateJoinSession(address);
     setSessionId(res.sessionId);
-    setStep(2);
+    setStep(3);
   };
 
-  const handleSubmitProfile = async () => {
-    await apiSubmitProfile(sessionId, { ...(pendingEdits?.profile || {}), links: pendingEdits?.l || [] });
-    setStep(3);
+  const handleFinalizeAddName = async () => {
+    await apiSubmitProfile(sessionId || "local", { ...profileForMemo, referrer });
+    onClose();
   };
 
   const handleCopyUri = async () => {
@@ -114,6 +166,12 @@ export default function JoinModal({ isOpen, onClose }) {
     window.open(uri, "_blank");
   };
 
+  // Links helpers
+  const addLinkRow = () => setLinks((rows) => [...rows, { platform: "X (Twitter)", value: "" }]);
+  const removeLinkRow = (idx) => setLinks((rows) => rows.filter((_, i) => i !== idx));
+  const changePlatform = (idx, platform) => setLinks((rows) => rows.map((r, i) => (i === idx ? { ...r, platform } : r)));
+  const changeValue = (idx, value) => setLinks((rows) => rows.map((r, i) => (i === idx ? { ...r, value } : r)));
+
   if (!isOpen) return null;
 
   return (
@@ -124,63 +182,138 @@ export default function JoinModal({ isOpen, onClose }) {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold">+
             </span>
-            <h3 className="font-semibold">Join Zecbook.com</h3>
+            <h3 className="font-semibold">Zecbook is better with friends</h3>
           </div>
-          <button className="text-gray-500 hover:text-gray-700" onClick={onClose} aria-label="Close">Close</button>
-        </div>
-
-        {/* Steps indicator */}
-        <div className="px-4 pt-2">
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
-            <span className={`px-2 py-1 rounded-full ${step===1?"bg-blue-600 text-white":"bg-gray-100"}`}>1 Address</span>
-            <span>→</span>
-            <span className={`px-2 py-1 rounded-full ${step===2?"bg-blue-600 text-white":"bg-gray-100"}`}>2 Profile</span>
-            <span>→</span>
-            <span className={`px-2 py-1 rounded-full ${step===3?"bg-blue-600 text-white":"bg-gray-100"}`}>3 Verify</span>
-          </div>
+          <button className="text-[var(--text-muted)] hover:text-[var(--link)]" onClick={onClose} aria-label="Close">Close</button>
         </div>
 
         {/* Body */}
         <div className="px-4 py-3">
           {step === 1 && (
             <div className="space-y-3">
-              <ZcashAddressInput value={address} onChange={setAddress} label="Your Zcash Address" id="join-addr" />
+              <label htmlFor="join-name" className="block text-sm font-semibold text-[var(--control-text)]">PROFILE NAME</label>
+              <input
+                id="join-name"
+                type="text"
+                value={nameText}
+                onChange={(e) => setNameText(e.target.value.replace(/\s+/g, "_"))}
+                placeholder="Enter name"
+                className="w-full px-3 py-2 rounded-xl border border-[var(--input-border)] bg-[var(--control-bg)] text-[var(--control-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+              />
+              <p className="text-xs text-[var(--text-muted)]">Use letters, numbers, underscores, or emojis. Spaces become underscores.</p>
               <div className="flex items-center justify-end gap-2">
-                <button className="px-3 py-2 text-sm rounded-xl border border-gray-300" onClick={onClose}>Cancel</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={onClose}>Cancel</button>
                 <button
-                  className={`px-3 py-2 text-sm rounded-xl ${isValidAddress?"bg-blue-600 text-white":"bg-gray-300 text-gray-500 cursor-not-allowed"}`}
-                  onClick={handleNextFromAddress}
-                  disabled={!isValidAddress}
-                >Next</button>
+                  className={`px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] ${isValidName ? "text-[var(--link)] hover:text-[var(--link-hover)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" : "text-[var(--text-muted)] cursor-not-allowed"}`}
+                  onClick={() => setStep(2)}
+                  disabled={!isValidName}
+                >Next →</button>
               </div>
             </div>
           )}
 
           {step === 2 && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600">Complete your profile (name, bio, profile image, links). These changes will be packed into the verification memo.</p>
-              <ProfileEditor profile={{ address: "", name: "", bio: "", profile_image_url: "", links: [] }} initialValues={{ address }} compact readOnlyAddress />
+              <label className="block text-sm font-semibold text-[var(--control-text)]">ZECBOOK ADDRESS</label>
+              <ZecbookAddressInput value={address} onChange={setAddress} id="join-addr" />
               <div className="flex items-center justify-between">
-                <button className="px-3 py-2 text-sm rounded-xl border border-gray-300" onClick={() => setStep(1)}>Back</button>
-                <button className="px-3 py-2 text-sm rounded-xl bg-blue-600 text-white" onClick={handleSubmitProfile}>Continue Verification</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={() => setStep(1)}>Back</button>
+                <button
+                  className={`px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] ${isValidAddress ? "text-[var(--link)] hover:text-[var(--link-hover)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" : "text-[var(--text-muted)] cursor-not-allowed"}`}
+                  onClick={handleNextFromAddress}
+                  disabled={!isValidAddress}
+                >Next →</button>
               </div>
             </div>
           )}
 
           {step === 3 && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-700">Open your wallet, send ≥{MIN_SIGNIN_AMOUNT} ZEC to the system address, and send the memo below exactly as it is to complete verification.</p>
-              <div className="rounded-xl border px-3 py-2 bg-gray-50">
-                <pre className="whitespace-pre-wrap break-words text-sm font-mono text-gray-800">{memoText}</pre>
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={handleCopyUri} className={`px-3 py-2 text-sm rounded-xl border ${copied?"border-green-500 text-green-600 bg-green-50":"border-gray-500 text-gray-700"}`}>{copied?"Copied":"Copy URI"}</button>
-                <button onClick={handleOpenWallet} className="px-3 py-2 text-sm rounded-xl bg-blue-600 text-white">Open in Wallet</button>
-              </div>
-              <p className="text-xs text-gray-500">System Address: <span className="font-mono">{SIGNIN_ADDR.slice(0,8)}…{SIGNIN_ADDR.slice(-8)}</span></p>
+              <label htmlFor="join-ref" className="block text-sm font-semibold text-[var(--control-text)]">REFERRED BY ZECBOOK.COM/</label>
+              <input
+                id="join-ref"
+                type="text"
+                value={referrer}
+                onChange={(e) => setReferrer(e.target.value)}
+                placeholder="Type to search (optional)..."
+                className="w-full px-3 py-2 rounded-xl border border-[var(--input-border)] bg-[var(--control-bg)] text-[var(--control-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+              />
+              <p className="text-xs text-[var(--text-muted)]">Optional. Helps us rank referrals.</p>
               <div className="flex items-center justify-between">
-                <button className="px-3 py-2 text-sm rounded-xl border border-gray-300" onClick={() => setStep(2)}>Back to Profile</button>
-                <button className="px-3 py-2 text-sm rounded-xl border border-gray-300" onClick={onClose}>Close</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={() => setStep(2)}>Back</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--link)] hover:text-[var(--link-hover)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" onClick={() => setStep(4)}>Next →</button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-[var(--control-text)]">PROFILE LINKS</label>
+
+              {links.map((row, idx) => (
+                <div key={idx} className="rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={row.platform}
+                      onChange={(e) => changePlatform(idx, e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-[var(--input-border)] bg-[var(--control-bg)] text-[var(--control-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+                    >
+                      {LINK_OPTIONS.map((opt) => (
+                        <option key={opt}>{opt}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      value={row.value}
+                      onChange={(e) => changeValue(idx, e.target.value)}
+                      placeholder={row.platform === "Other (custom URL)" ? "https://example.com" : "your_username"}
+                      className="flex-1 px-3 py-2 rounded-xl border border-[var(--input-border)] bg-[var(--control-bg)] text-[var(--control-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+                    />
+                    {links.length > 1 && (
+                      <button
+                        className="text-sm text-red-600 hover:text-red-700"
+                        onClick={() => removeLinkRow(idx)}
+                        aria-label="Remove link"
+                      >Remove link</button>
+                    )}
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)]">Preview: {previewFor(row.platform, row.value)}</p>
+                </div>
+              ))}
+
+              <button
+                className="inline-flex items-center gap-2 text-[var(--link)] hover:text-[var(--link-hover)]"
+                onClick={addLinkRow}
+              >
+                <span className="text-lg">+</span> Add another link
+              </button>
+              <p className="text-xs text-[var(--text-muted)]">Tip: You can add, remove and verify links from Edit Profile.</p>
+
+              <div className="flex items-center justify-between">
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={() => setStep(3)}>Back</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--link)] hover:text-[var(--link-hover)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" onClick={() => setStep(5)}>Next →</button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-3">
+              <p className="text-sm text-[var(--control-text)]">Review your details before adding your name.</p>
+              <div className="rounded-xl border border-[var(--control-border)] px-3 py-2 bg-[var(--control-bg)] text-[var(--control-text)] space-y-1">
+                <p><span className="font-semibold">Name:</span> {nameText || "(not set)"}</p>
+                <p><span className="font-semibold">Zecbook Address:</span> <span className="font-mono break-all">{address || "(not set)"}</span></p>
+                <p><span className="font-semibold">Referred by:</span> {referrer || "(optional)"}</p>
+                <div>
+                  <span className="font-semibold">Links:</span>
+                  {links.length === 0 && <span> (none)</span>}
+                  {links.map((l, i) => (
+                    <p key={i}>• {l.platform}: {l.platform === "Other (custom URL)" ? (l.value || "(url)") : (l.value ? `@${l.value}` : "(username)")}</p>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={() => setStep(4)}>Back</button>
+                <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--link)] hover:text-[var(--link-hover)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" onClick={handleFinalizeAddName}>Add Name</button>
               </div>
             </div>
           )}

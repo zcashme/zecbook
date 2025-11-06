@@ -50,15 +50,15 @@ export default function ReplyBox({ replyAddress = "", placeholder = "write a rep
   return (
     <div className="mt-4">
       {/* Mode pills */}
-      <div className="inline-flex rounded-full overflow-hidden border border-gray-300 bg-white/60">
+      <div className="inline-flex rounded-full overflow-hidden border border-[var(--control-border)] bg-[var(--control-bg)]">
         <button
-          className={`px-3 py-1 text-sm ${mode === "draft" ? "bg-blue-600 text-white" : "text-gray-700"}`}
+          className={`px-3 py-1 text-sm ${mode === "draft" ? "bg-[var(--link)] text-white" : "text-[var(--control-text)] hover:text-[var(--link)]"}`}
           onClick={() => setMode("draft")}
         >
           Draft
         </button>
         <button
-          className={`px-3 py-1 text-sm ${mode === "verify" ? "bg-green-600 text-white" : "text-gray-700"}`}
+          className={`px-3 py-1 text-sm ${mode === "verify" ? "bg-green-600 text-white" : "text-[var(--control-text)] hover:text-[var(--link)]"}`}
           onClick={() => setMode("verify")}
         >
           Verify
@@ -71,16 +71,16 @@ export default function ReplyBox({ replyAddress = "", placeholder = "write a rep
           type="text"
           defaultValue={replyAddress}
           readOnly
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white/50"
+          className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-white/50"
         />
         <input
           type="text"
           placeholder={placeholder}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white/70"
+          className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-white/70"
         />
-        <p className={`text-xs text-right ${memoBytes.remaining < 0 ? "text-red-600" : "text-gray-500"}`}>
+        <p className={`text-xs text-right ${memoBytes.remaining < 0 ? "text-red-600" : "text-[var(--text-muted)]"}`}>
           {memoBytes.remaining >= 0 ? `+${memoBytes.remaining} bytes` : `-${Math.abs(memoBytes.remaining)} over 512`}
         </p>
         <input
@@ -88,16 +88,16 @@ export default function ReplyBox({ replyAddress = "", placeholder = "write a rep
           placeholder="0.0000 ZEC (optional)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white/50"
+          className="w-full px-3 py-2 rounded-lg border border-[var(--input-border)] bg-white/50"
         />
       </div>
 
       {/* Actions */}
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button className="px-3 py-2 rounded-lg border bg-white/70" onClick={copyURI}>
+      <div className="mt-3 flex flex_wrap gap-2">
+        <button className="px-3 py-2 rounded-lg border border-[var(--control-border)] bg-[var(--control-bg)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" onClick={copyURI}>
           {copied ? "Copied" : "📋 Copy URI"}
         </button>
-        <a className="px-3 py-2 rounded-lg border bg-white/70" href={uri} target="_blank" rel="noreferrer">
+        <a className="px-3 py-2 rounded-lg border border-[var(--control-border)] bg-[var(--control-bg)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)]" href={uri} target="_blank" rel="noreferrer">
           🔗 Open in Wallet
         </a>
       </div>

@@ -16,19 +16,19 @@ export default function VerifiedCardWrapper({
   if (featured) {
     // 🌟 Featured glow takes priority
     tierStyle =
-      "border-yellow-400 bg-yellow-50/40 hover:bg-yellow-50/60 hover:shadow-[0_0_10px_rgba(250,204,21,0.4)]";
+      "border-[var(--card-border-featured)] bg-[var(--card-bg-featured)] hover:bg-[var(--card-bg-featured-hover)] hover:shadow-[var(--card-shadow-featured-hover)]";
   } else if (verifiedCount >= 3) {
     tierStyle =
-      "border-green-400 bg-gradient-to-r from-green-50/80 via-emerald-50/80 to-green-100/80 relative overflow-hidden";
+      "border-[var(--card-border-verified-3)] bg-gradient-to-r from-[var(--card-bg-verified-3-start)] via-[var(--card-bg-verified-3-via)] to-[var(--card-bg-verified-3-end)] relative overflow-hidden";
   } else if (verifiedCount === 2) {
     tierStyle =
-      "border-green-400 bg-green-50/60 hover:bg-green-50 hover:shadow-[0_0_10px_rgba(34,197,94,0.25)]";
+      "border-[var(--card-border-verified-2)] bg-[var(--card-bg-verified-2)] hover:bg-[var(--card-bg-verified-2-hover)] hover:shadow-[var(--card-shadow-verified-2-hover)]";
   } else if (verifiedCount === 1) {
     tierStyle =
-      "border-blue-300 bg-blue-50/60 hover:bg-blue-50 hover:shadow-[0_0_8px_rgba(59,130,246,0.25)]";
+      "border-[var(--card-border-verified-1)] bg-[var(--card-bg-verified-1)] hover:bg-[var(--card-bg-verified-1-hover)] hover:shadow-[var(--card-shadow-verified-1-hover)]";
   } else {
     tierStyle =
-      "border-gray-500 bg-transparent hover:bg-gray-100/10 hover:shadow-[0_0_4px_rgba(0,0,0,0.05)]";
+      "border-[var(--card-border-unverified)] bg-[var(--card-bg-unverified)] hover:bg-[var(--card-bg-unverified-hover)] hover:shadow-[var(--card-shadow-unverified-hover)]";
   }
 
   return (
@@ -41,7 +41,7 @@ export default function VerifiedCardWrapper({
       {/* Animated gradient shimmer for top-tier verified */}
       {verifiedCount >= 3 && !featured && (
         <motion.div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-300/10 via-emerald-400/20 to-green-300/10 blur-md"
+          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--card-shimmer-from)] via-[var(--card-shimmer-via)] to-[var(--card-shimmer-to)] blur-md"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}

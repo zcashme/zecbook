@@ -1,0 +1,105 @@
+:root {
+  /* Badge: Verified */
+  --verified-badge-text: #166534; /* green-800 */
+  --verified-badge-bg-start: #dcfce7; /* green-100 */
+  --verified-badge-bg-end: #bbf7d0; /* green-200 */
+  --verified-badge-border: #86efac; /* green-300 */
+  --verified-icon: #16a34a; /* green-600 */
+
+  /* Badge: Unverified */
+  --unverified-badge-text: #4b5563; /* gray-600 */
+  --unverified-badge-bg: #f3f4f6; /* gray-100 */
+  --unverified-badge-border: #d1d5db; /* gray-300 */
+  --unverified-icon: #9ca3af; /* gray-400 */
+
+  /* Card: Featured */
+  --card-border-featured: #facc15; /* yellow-400 */
+  --card-bg-featured: rgba(254, 252, 232, 0.40); /* yellow-50 /40 */
+  --card-bg-featured-hover: rgba(254, 252, 232, 0.60); /* yellow-50 /60 */
+  --card-shadow-featured-hover: 0 0 10px rgba(250, 204, 21, 0.40);
+
+  /* Card: Verified (3+) */
+  --card-border-verified-3: #4ade80; /* green-400 */
+  --card-bg-verified-3-start: rgba(240, 253, 244, 0.80); /* green-50 /80 */
+  --card-bg-verified-3-via: rgba(236, 253, 245, 0.80); /* emerald-50 /80 */
+  --card-bg-verified-3-end: rgba(220, 252, 231, 0.80); /* green-100 /80 */
+
+  /* Shimmer overlay for top-tier verified */
+  --card-shimmer-from: rgba(134, 239, 172, 0.10); /* green-300 /10 */
+  --card-shimmer-via: rgba(52, 211, 153, 0.20); /* emerald-400 /20 */
+  --card-shimmer-to: rgba(134, 239, 172, 0.10); /* green-300 /10 */
+
+  /* Card: Verified (2) */
+  --card-border-verified-2: #4ade80; /* green-400 */
+  --card-bg-verified-2: rgba(240, 253, 244, 0.60); /* green-50 /60 */
+  --card-bg-verified-2-hover: rgba(240, 253, 244, 1.00); /* green-50 */
+  --card-shadow-verified-2-hover: 0 0 10px rgba(34, 197, 94, 0.25); /* green-500 */
+
+  /* Card: Verified (1) */
+  --card-border-verified-1: #93c5fd; /* blue-300 */
+  --card-bg-verified-1: rgba(239, 246, 255, 0.60); /* blue-50 /60 */
+  --card-bg-verified-1-hover: rgba(239, 246, 255, 1.00); /* blue-50 */
+  --card-shadow-verified-1-hover: 0 0 8px rgba(59, 130, 246, 0.25); /* blue-500 */
+
+  /* Card: Unverified */
+  --card-border-unverified: #6b7280; /* gray-500 */
+  --card-bg-unverified: transparent;
+  --card-bg-unverified-hover: rgba(243, 244, 246, 0.10); /* gray-100 /10 */
+  --card-shadow-unverified-hover: 0 0 4px rgba(0, 0, 0, 0.05);
+
+  /* Card common tokens */
+  --card-radius: 1rem; /* rounded-2xl approx */
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Card text tokens */
+  --card-title: #1d4ed8; /* blue-700 */
+  --card-meta: #4b5563; /* gray-600 */
+  --card-avatar-border: #d1d5db; /* gray-300 */
+
+  /* Chips tokens */
+  --chip-bg-default: rgba(255, 255, 255, 0.50); /* white/50 */
+  --chip-border-default: #d1d5db; /* gray-300 */
+
+  --chip-featured-bg: #fef3c7; /* yellow-100 */
+  --chip-featured-border: #facc15; /* yellow-400 */
+
+  --chip-ranked-bg: #ffedd5; /* orange-100 */
+  --chip-ranked-border: #fb923c; /* orange-400 */
+
+  --chip-verified-bg: #dcfce7; /* green-100 */
+  --chip-verified-border: #4ade80; /* green-400 */
+
+  --chip-all-bg: #dbeafe; /* blue-100 */
+  --chip-all-border: #60a5fa; /* blue-400 */
+
+  /* Links & Controls tokens */
+  --link: #1d4ed8; /* blue-700 */
+  --link-hover: #1e40af; /* blue-800 */
+
+  --text-muted: #4b5563; /* gray-600 */
+
+  --control-border: #d1d5db; /* gray-300 */
+  --control-border-hover: #60a5fa; /* blue-400 */
+  --control-bg: rgba(255, 255, 255, 0.80);
+  --control-bg-hover: #eff6ff; /* blue-50 */
+  --control-text: #4b5563; /* gray-600 */
+  --control-text-hover: #1d4ed8; /* blue-700 */
+
+  --input-border: #d1d5db; /* gray-300 */
+  --input-focus-border: #3b82f6; /* blue-500 */
+
+  /* Refer rank badge tokens */
+  --refer-day-bg: #dbeafe; /* blue-100 */
+  --refer-day-border: #60a5fa; /* blue-400 */
+  --refer-week-bg: #dcfce7; /* green-100 */
+  --refer-week-border: #4ade80; /* green-400 */
+  --refer-month-bg: #fef3c7; /* yellow-100 */
+  --refer-month-border: #facc15; /* yellow-400 */
+  --refer-alltime-bg: #ffedd5; /* orange-100 */
+  --refer-alltime-border: #fb923c; /* orange-400 */
+
+  /* Motion tokens */
+  --motion-fast: 150ms;
+  --motion-medium: 300ms;
+}

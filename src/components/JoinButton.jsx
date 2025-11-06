@@ -7,7 +7,7 @@ export default function JoinButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500 text-white text-sm font-semibold shadow-sm hover:bg-green-600"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold shadow-md transition-all duration-300 z-[50] animate-joinPulse hover:shadow-[0_0_12px_rgba(34,197,94,0.7)] hover:bg-green-500"
         title="Join"
       >
         <span className="text-base leading-none">+</span>

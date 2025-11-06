@@ -6,7 +6,7 @@ export const mockPosts = [
     id: "p-1001",
     walletAddress: "u1v0en...7xw2kv",
     authorName: "aisha",
-    authorAvatar: "/public/sample.png",
+    authorAvatar: "/sample.png",
     authorJoined: "2025-10-01T00:00:00.000Z",
     title: "Hello Zcashers — testing signed note",
     body:
@@ -22,7 +22,7 @@ export const mockPosts = [
     id: "p-1002",
     walletAddress: "u1abc...def456",
     authorName: "AcidBurn",
-    authorAvatar: "/public/sample.png",
+    authorAvatar: "/sample.png",
     authorJoined: "2025-10-03T00:00:00.000Z",
     title: "New wallet verified with OTP",
     body:
@@ -38,7 +38,7 @@ export const mockPosts = [
     id: "p-1003",
     walletAddress: "u1lmn...xyz890",
     authorName: "Alex",
-    authorAvatar: "/public/sample.png",
+    authorAvatar: "/sample.png",
     authorJoined: "2025-10-05T00:00:00.000Z",
     title: "My first Zcash message",
     body:
@@ -54,7 +54,7 @@ export const mockPosts = [
     id: "p-1004",
     walletAddress: "u1foo...bar777",
     authorName: "AL3X",
-    authorAvatar: "/public/sample.png",
+    authorAvatar: "/sample.png",
     authorJoined: "2025-10-04T00:00:00.000Z",
     title: "Weekly spotlight",
     body:
@@ -70,7 +70,7 @@ export const mockPosts = [
     id: "p-1005",
     walletAddress: "u1sdf...ghj555",
     authorName: "alucard",
-    authorAvatar: "/public/sample.png",
+    authorAvatar: "/sample.png",
     authorJoined: "2025-10-10T00:00:00.000Z",
     title: "Unverified note",
     body:
