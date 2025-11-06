@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import ZecbookAddressInput from "./ZecbookAddressInput";
+import ZcashAddressInput from "./ZcashAddressInput";
 import ProfileEditor from "./ProfileEditor";
 import { useFeedback } from "../store";
 
@@ -215,7 +215,7 @@ export default function JoinModal({ isOpen, onClose }) {
           {step === 2 && (
             <div className="space-y-3">
               <label className="block text-sm font-semibold text-[var(--control-text)]">ZECBOOK ADDRESS</label>
-              <ZecbookAddressInput value={address} onChange={setAddress} id="join-addr" />
+              <ZcashAddressInput value={address} onChange={setAddress} id="join-addr" />
               <div className="flex items-center justify-between">
                 <button className="px-3 py-2 text-sm rounded-xl border border-[var(--control-border)] bg-[var(--control-bg)] text-[var(--control-text)] hover:border-[var(--control-border-hover)] hover:bg-[var(--control-bg-hover)] hover:text-[var(--control-text-hover)]" onClick={() => setStep(1)}>Back</button>
                 <button
