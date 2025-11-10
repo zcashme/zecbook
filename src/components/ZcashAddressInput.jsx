@@ -1,19 +1,23 @@
 import { useState, useEffect } from "react";
 import { validateZcashAddress, getZcashAddressHint } from "../utils/zcashAddressUtils";
 
-export default function ZcashAddressInput({ value, onChange, label = "Zcash Address", id = "zcash-address" }) {
-  const [help, setHelp] = useState(getZcashAddressHint(value));
+export default function ZcashAddressInput({ value, onChange, label, id = "zcash-address", brand = "zcash", hideLabel = false }) {
+  const [help, setHelp] = useState(getZcashAddressHint(value, brand));
   const isValid = validateZcashAddress(value).valid;
 
   useEffect(() => {
-    setHelp(getZcashAddressHint(value));
-  }, [value]);
+    setHelp(getZcashAddressHint(value, brand));
+  }, [value, brand]);
+
+  const displayLabel = label ?? (brand === "zecbook" ? "Zecbook Address" : "Zcash Address");
 
   return (
     <div>
-      <label htmlFor={id} className="block text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] mb-1">
-        {label}
-      </label>
+      {!hideLabel && (
+        <label htmlFor={id} className="block text-xs font-medium uppercase tracking-wide text-[var(--text-muted)] mb-1">
+          {displayLabel}
+        </label>
+      )}
       <input
         id={id}
         value={value}

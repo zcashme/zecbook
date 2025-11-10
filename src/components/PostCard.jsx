@@ -3,15 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import VerifiedBadge from "./VerifiedBadge";
 import VerifiedCardWrapper from "./VerifiedCardWrapper";
-
-function humanDate(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-  } catch {
-    return iso;
-  }
-}
+import { formatDateUTC } from "../utils/dateUtils";
 
 export default function PostCard({ post }) {
   const navigate = useNavigate();
@@ -46,10 +38,17 @@ export default function PostCard({ post }) {
             )}
           </div>
 
-          {/* Author + date */}
-          <p className="text-sm text-[var(--card-meta)] truncate">
-            {post.authorName} · Posted {humanDate(post.createdAt)}
+          {/* Date (from transaction) */}
+          <p className="text-sm text-[var(--card-meta)] font-medium">
+            📅 {post.date || formatDateUTC(post.createdAt)}
           </p>
+
+          {/* Memo preview */}
+          {post.memo && (
+            <p className="text-xs text-[var(--card-meta)] truncate mt-1">
+              💬 {post.memo.slice(0, 80)}...
+            </p>
+          )}
         </div>
       </div>
     </VerifiedCardWrapper>

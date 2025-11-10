@@ -1,56 +1,101 @@
 // src/pages/Timeline.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import usePosts from "../hooks/usePosts";
 import PostCard from "../components/PostCard";
 import CategoryChips from "../components/CategoryChips";
+import PostStats from "../components/PostStats";
 import JoinButton from "../components/JoinButton";
+import TopBar from "../components/TopBar";
+import { formatDateUTC } from "../utils/dateUtils";
 
 export default function TimelinePage() {
-  const { posts, grouped, letters, counts, search, setSearch, filters, setFilter, resetFilters, loading } = usePosts();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { posts, groupedByDate, dates, counts, search, setSearch, filters, setFilter, resetFilters, loading } = usePosts();
+  const [showStats, setShowStats] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q") || "";
+    if (q !== search) {
+      setSearch(q);
+      resetFilters();
+    }
+  }, [location.search, resetFilters, search, setSearch]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Top header */}
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-bold">Zecbook.com</h1>
-        <div className="flex items-center gap-2">
-          <JoinButton />
-        </div>
-      </div>
-
-      {/* Search bar */}
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={`search ${counts.total} posts`}
-        className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-300"
+    <>
+      <TopBar
+        title="Zecbook.com/"
+        secondaryText={`search ${counts.total} posts`}
+        onTitleClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        showSearch
+        searchValue={search}
+        searchPlaceholder={`search ${counts.total} posts`}
+        onSearchChange={(e) => setSearch(e.target.value)}
+        onSearchClear={() => setSearch("")}
+        rightSlot={<JoinButton />}
       />
 
-      {/* Categories */}
-      <CategoryChips counts={counts} filters={filters} setFilter={setFilter} resetFilters={resetFilters} />
+    <div className="max-w-2xl mx-auto px-4 py-6">
 
-      {loading && <p className="text-gray-500">Loading...</p>}
+      {/* Filter chips */}
+      <CategoryChips
+        counts={counts}
+        filters={filters}
+        setFilter={setFilter}
+        resetFilters={resetFilters}
+        onShowStats={() => setShowStats(!showStats)}
+        onFeedback={() => navigate("/feedback")}
+        showStats={showStats}
+      />
 
-      {/* Grouped timeline */}
-      <div className="space-y-4">
-        {letters.map((L) => (
-          <div key={L}>
-            <div className="sticky top-0 z-10 bg-[var(--color-background)] py-1">
-              <h2 className="font-semibold text-lg">{L}</h2>
+      {/* Stats panel (collapsible) */}
+      {showStats && <PostStats posts={posts} />}
+
+      {loading && <p className="text-[var(--timeline-loading)]">Loading...</p>}
+
+      {/* Results count */}
+      {!loading && posts.length > 0 && (
+        <p className="text-xs text-[var(--profile-text-muted)] mb-3">
+          Showing {posts.length} of {counts.total} posts · Sorted by date (newest first)
+        </p>
+      )}
+
+      {/* Timeline - Grouped by date */}
+      <div className="space-y-6">
+        {dates.map((date) => (
+          <div key={date}>
+            {/* Date header */}
+            <div className="sticky top-0 z-10 bg-[var(--color-background)] py-2 mb-3">
+              <h2 className="text-lg font-semibold text-[var(--timeline-section-header)]">
+                {formatDateUTC(date)}
+              </h2>
             </div>
+            
+            {/* Posts for this date */}
             <div className="space-y-3">
-              {(grouped[L] || []).map((p) => (
+              {(groupedByDate[date] || []).map((p) => (
                 <PostCard key={p.id} post={p} />
               ))}
             </div>
           </div>
         ))}
 
-        {letters.length === 0 && (
-          <p className="text-gray-600">No posts match your filters.</p>
+        {posts.length === 0 && !loading && (
+          <div className="text-center py-8">
+            <p className="text-[var(--timeline-no-results)] mb-2">No posts match your filters.</p>
+            <button
+              onClick={resetFilters}
+              className="text-blue-700 hover:underline text-sm"
+            >
+              Reset filters
+            </button>
+          </div>
         )}
       </div>
     </div>
+    </>
   );
 }

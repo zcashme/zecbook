@@ -5,10 +5,16 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useFeedback } from "./store";
 import useProfiles from "./hooks/useProfiles";
 import VerifiedBadge from "./components/VerifiedBadge";
+import CopyButton from "./components/CopyButton";
 
 /* -------------------------------------------------------
    Constants
 ------------------------------------------------------- */
+// Reply mode: Send messages to this address
+const REPLY_DEFAULT_ADDR =
+  "u1un9d4pscqnyfwd4vpn2ytc6562cvg3dczufp5lpfz74zd3ft70j6u5ggc60qsh8d6jq6ztjanafl5w6p6yltn2v45wpyg6v7uvcn7fcg";
+
+// Sign mode: Verification address (keeping the original for sign/verify mode)
 const SIGNIN_ADDR =
   "u1qzt502u9fwh67s7an0e202c35mm0h534jaa648t4p2r6mhf30guxjjqwlkmvthahnz5myz2ev7neff5pmveh54xszv9njcmu5g2eent82ucpd3lwyzkmyrn6rytwsqefk475hl5tl4tu8yehc0z8w9fcf4zg6r03sq7lldx0uxph7c0lclnlc4qjwhu2v52dkvuntxr8tmpug3jntvm";
 const MIN_SIGNIN_AMOUNT = 0.001;
@@ -112,9 +118,10 @@ const [signInMemo, setSignInMemo] = useState("pro:{}");
 // const [signInAmount, setSignInAmount] = useState("0.002");
 const [signInAmount, setSignInAmount] = useState(DEFAULT_SIGNIN_AMOUNT.toFixed(3));
 // Derived display values based on mode
-const [mode, setMode] = useState("note");
-const amount = mode === "signin" ? signInAmount : draftAmount;
-const memo = mode === "signin" ? signInMemo : draftMemo;
+// Default to "reply" instead of "note"
+const [mode, setMode] = useState("reply");
+const amount = mode === "sign" ? signInAmount : draftAmount;
+const memo = mode === "sign" ? signInMemo : draftMemo;
 
   const [uri, setUri] = useState("");
   const [error, setError] = useState("");
@@ -124,7 +131,6 @@ const memo = mode === "signin" ? signInMemo : draftMemo;
   const [qrShownOnce, setQrShownOnce] = useState(false);
   const [showDraft, setShowDraft] = useState(true);
   const [showEditLabel, setShowEditLabel] = useState(true);
-  const [copied, setCopied] = useState(false);
   const [walletOpened, setWalletOpened] = useState(false);
   
 const [showCodeInput, setShowCodeInput] = useState(false);
@@ -165,9 +171,9 @@ useEffect(() => {
 }, [selectedAddress]);
 
   /* -----------------------------------------------------
-     Sign-in quick action
+     Sign quick action (formerly Sign-in)
   ----------------------------------------------------- */
-  const handleSignIn = () => {
+  const handleSign = () => {
     const userAddr =
       selectedAddress === "other" ? manualAddress.trim() : selectedAddress || "(unknown)";
     
@@ -193,15 +199,15 @@ params.set("address", SIGNIN_ADDR);
 params.set("amount", MIN_SIGNIN_AMOUNT.toFixed(3));
 params.set("memo", toBase64Url(memoText));
 
-const signinUri = `zcash:?${params.toString()}`;
+const signUri = `zcash:?${params.toString()}`;
 
-setMode("signin");
+setMode("sign");
 setMemo(memoText);
 setAmount(MIN_SIGNIN_AMOUNT.toFixed(3));
 setForceShowQR(true);
 setError("");
-setUri(signinUri);
-window.open(signinUri, "_blank");
+setUri(signUri);
+window.open(signUri, "_blank");
 
 
   };
@@ -219,12 +225,12 @@ if (window.lastZcashFlipDetail) {
   if (zId && address) {
     setActiveZId(zId);
     setSelectedAddress(address);
-    setMode("signin");
+    setMode("sign");
   }
 }
 
   const updateMemo = (zId = null, addr = "", name = "", verified = false) => {
-    if (mode !== "signin") return;
+    if (mode !== "sign") return;
 
 const memoText = buildZcashEditMemo(
   { ...(pendingEdits?.profile || {}), links: pendingEdits?.l || [] },
@@ -244,7 +250,7 @@ const memoText = buildZcashEditMemo(
     // console.log("🪪 Received enterSignInMode →", { zId, addr, name, verified });
 window.lastZcashFlipDetail = { zId, address: addr, name, verified };
 
-    setMode("signin");
+    setMode("sign");
     setActiveZId(zId);
     setSelectedAddress(addr);
     updateMemo(zId, addr, name, verified);
@@ -255,14 +261,14 @@ window.lastZcashFlipDetail = { zId, address: addr, name, verified };
 }, []);
 
 
-// ✅ Listen for card rotating back → switch to Draft mode automatically
+// ✅ Listen for card rotating back → switch to Reply mode automatically
 useEffect(() => {
-  const handleDraftMode = () => {
-    setMode("note");
+  const handleReplyMode = () => {
+    setMode("reply");
     setForceShowQR(false);
   };
-  window.addEventListener("enterDraftMode", handleDraftMode);
-  return () => window.removeEventListener("enterDraftMode", handleDraftMode);
+  window.addEventListener("enterDraftMode", handleReplyMode);
+  return () => window.removeEventListener("enterDraftMode", handleReplyMode);
 }, []);
 
   useEffect(() => {
@@ -274,7 +280,7 @@ useEffect(() => {
   }, [showDraft, memo, amount]);
 // 🔧 INSERT THIS EFFECT (keeps everything else unchanged)
 useEffect(() => {
-  if (mode !== "signin") return;
+  if (mode !== "sign") return;
 
   // ensure we have zId and address before building the memo
   let zId = activeZId;
@@ -338,11 +344,11 @@ const { data, error } = await supabase
 
   useEffect(() => {
     const addr =
-      mode === "signin"
+      mode === "sign"
         ? SIGNIN_ADDR
         : selectedAddress === "other"
         ? manualAddress.trim()
-        : selectedAddress;
+        : selectedAddress || REPLY_DEFAULT_ADDR;
 
     if (!addr || !isValidZcashAddress(addr)) {
       setUri("");
@@ -360,8 +366,8 @@ const { data, error } = await supabase
       if (!isNaN(num) && num >= MIN_SIGNIN_AMOUNT) {
         const validAmount = num.toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
         params.set("amount", validAmount);
-      } else if (mode === "signin") {
-        setError(`Sign-in requires sending at least ${MIN_SIGNIN_AMOUNT} ZEC.`);
+      } else if (mode === "sign") {
+        setError(`Sign mode requires sending at least ${MIN_SIGNIN_AMOUNT} ZEC.`);
       }
     }
 
@@ -383,16 +389,16 @@ const { data, error } = await supabase
       <div className="fixed bottom-6 right-6 z-[9999]">
         <div className="relative">
           <button
-            id="draft-button"
+            id="reply-button"
             onClick={() => {
-              setMode("note");
+              setMode("reply");
               document.getElementById("zcash-feedback")?.scrollIntoView({ behavior: "smooth" });
               window.dispatchEvent(new CustomEvent("closeDirectory"));
             }}
             className={`relative text-white rounded-full w-14 h-14 shadow-lg text-lg font-bold transition-all duration-300 ${
               showDraft ? "opacity-100 scale-100" : "opacity-70 scale-90"
             } bg-blue-600 hover:bg-blue-700 animate-pulse-slow`}
-            title="Draft a memo"
+            title="Reply to a message"
           >
             ✎
           </button>
@@ -409,19 +415,19 @@ const { data, error } = await supabase
   onClick={() =>
     document.getElementById("zcash-feedback")?.scrollIntoView({ behavior: "smooth" })
   }
-  className="text-sm font-semibold text-white bg-blue-700/90 px-3 py-1 rounded-full shadow-md hover:bg-blue-600 transition-colors duration-300 whitespace-nowrap animate-editDraftInOut"
+  className="text-sm font-semibold text-white bg-blue-700/90 px-3 py-1 rounded-full shadow-md hover:bg-blue-600 transition-colors duration-300 whitespace-nowrap animate-editReplyInOut"
   style={{ backdropFilter: "blur(4px)" }}
 >
-  Edit Draft
+  Edit Reply
   <style>{`
-    @keyframes editDraftInOut {
+    @keyframes editReplyInOut {
       0%   { opacity: 0; transform: translateX(12px); }
       10%  { opacity: 1; transform: translateX(0); }
       80%  { opacity: 1; transform: translateX(0); }
       100% { opacity: 0; transform: translateX(120px); }
     }
-    .animate-editDraftInOut {
-      animation: editDraftInOut 4.5s ease-in-out forwards;
+    .animate-editReplyInOut {
+      animation: editReplyInOut 4.5s ease-in-out forwards;
     }
   `}</style>
 </button>
@@ -437,27 +443,27 @@ const { data, error } = await supabase
         <div className="flex justify-center items-center mb-2 relative">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 transform">
  <div className="inline-flex border border-gray-300 rounded-full overflow-hidden text-sm shadow-sm">
-  {/* 🧭 Draft Button */}
+  {/* 🧭 Reply Button */}
   <button
     onClick={() => {
-      setMode("note");
+      setMode("reply");
       setForceShowQR(false);
       // ✅ Tell the card to flip to FRONT
       window.dispatchEvent(new CustomEvent("enterDraftMode"));
     }}
     className={`px-3 py-1 font-medium transition-colors ${
-      mode === "note"
+      mode === "reply"
         ? "bg-blue-600 text-white"
         : "bg-white text-gray-600 hover:bg-gray-100"
     }`}
   >
-    ✎ Draft
+    ✎ Reply
   </button>
 
-{/* 🔐 Sign In Button */}
+{/* 🔐 Sign Button */}
 <button
   onClick={() => {
-    setMode("signin");
+    setMode("sign");
     setForceShowQR(true);
     setShowFull(false);
 
@@ -491,23 +497,23 @@ const { data, error } = await supabase
     );
   }}
   className={`px-3 py-1 font-medium transition-colors ${
-    mode === "signin"
+    mode === "sign"
       ? "bg-blue-600 text-white"
       : "bg-gray-100 text-gray-600 hover:bg-gray-100"
   }`}
 >
-  ⛊ Verify
+  ⛊ Sign
 </button>
 </div>
 
           </div>
         </div>
 <div className="text-sm text-gray-700 mb-4 text-center">
-  {mode === "signin" ? (
+  {mode === "sign" ? (
     <div></div>
   ) : (
     <>
-      ✎ Draft a note to{" "}
+      ✎ Reply to{" "}
 <span className="font-semibold text-blue-700">
   {(() => {
 const match = cachedProfiles.find((p) => p.address === selectedAddress);
@@ -531,7 +537,7 @@ return name;
             {/* Recipient select */}
 {/* Recipient */}
 <div className="relative flex flex-col w-full">
-  {mode === "signin" ? (
+  {mode === "sign" ? (
     <div className="border rounded-lg px-3 py-2 text-sm bg-transparent-50 text-gray-700">
 <span className="font-semibold flex items-center justify-center gap-2 text-center w-full">
   Request One-Time Passcode
@@ -679,7 +685,7 @@ to verify address or approve changes
 
 {/* Memo */}
 <div className="relative w-full mt-3">
-{mode === "signin" ? (
+{mode === "sign" ? (
   // Read-only wallet-style memo preview
   <div className="relative group w-full">
     <pre
@@ -693,11 +699,11 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
 
 
     <p className="text-xs text-gray-400 mt-1 italic text-center">
-      (Do not modify before sending! Include >{MIN_SIGNIN_AMOUNT} ZEC)
+      (Do not modify before sending! Include &gt;{MIN_SIGNIN_AMOUNT} ZEC)
     </p>
   </div>
 ) : (
-  // Regular editable draft mode
+  // Regular editable reply mode
   <textarea
     rows={1}
     placeholder="Memo (optional)"
@@ -723,11 +729,11 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
   />
 )}
 
-  {(mode === "signin" ? signInMemo : draftMemo) &&
-    (mode === "signin" ? signInMemo : draftMemo) !== "N/A" && (
+  {(mode === "sign" ? signInMemo : draftMemo) &&
+    (mode === "sign" ? signInMemo : draftMemo) !== "N/A" && (
       <button
         onClick={() =>
-          mode === "signin" ? setSignInMemo("") : setDraftMemo("")
+          mode === "sign" ? setSignInMemo("") : setDraftMemo("")
         }
         className="absolute right-3 top-2 text-gray-400 hover:text-red-500 text-sm font-semibold"
         aria-label="Clear memo"
@@ -737,7 +743,7 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
     )}
 
               {memo &&
-                (mode === "signin" ||
+                (mode === "sign" ||
                   !(selectedAddress === "other"
                     ? manualAddress?.startsWith("t")
                     : selectedAddress?.startsWith("t"))) && (
@@ -754,17 +760,17 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
                   <input
                     type="text"
                     inputMode="decimal"
-                    placeholder={mode === "signin" ? `${MIN_SIGNIN_AMOUNT} ZEC` : "0.0000 ZEC (optional)"}
+                    placeholder={mode === "sign" ? `${MIN_SIGNIN_AMOUNT} ZEC` : "0.0000 ZEC (optional)"}
                     value={amount}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^\d.]/g, "");
-                      mode === "signin" ? setSignInAmount(value) : setDraftAmount(value);
+                      mode === "sign" ? setSignInAmount(value) : setDraftAmount(value);
                     }}
                     className="border rounded-lg px-3 py-2 text-sm w-full pr-10 bg-transparent"
                   />
                   {amount && (
                     <button
-                      onClick={() => (mode === "signin" ? setSignInAmount("") : setDraftAmount(""))}
+                      onClick={() => (mode === "sign" ? setSignInAmount("") : setDraftAmount(""))}
                       className="absolute right-3 top-2 text-gray-400 hover:text-red-500 text-sm font-semibold"
                       aria-label="Clear amount"
                     >
@@ -774,8 +780,8 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
 
                 </div>
               </div>
-{/* Codewords input (Sign-In mode only) */}
-{mode === "signin" && showCodeInput && (
+{/* Codewords input (Sign mode only) */}
+{mode === "sign" && showCodeInput && (
   <div className="w-full mt-3 text-left animate-fadeIn">
     <label className="block text-sm text-gray-700 mb-1">One-Time Passcode</label>
     <input
@@ -793,33 +799,13 @@ className="border border-gray-300 rounded-xl px-4 py-3 text-sm w-full bg-transpa
               {/* Action buttons */}
 <div className="flex-1 w-full sm:w-1/2 flex justify-center sm:justify-end gap-2 mt-4 sm:mt-6">
   {/* Copy URI */}
-  <button
-    onClick={async () => {
-      if (error) return;
-      await navigator.clipboard.writeText(uri);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    }}
-    disabled={!!error}
-    className={`flex items-center gap-1 border rounded-xl px-3 py-1.5 text-sm transition-all duration-200 ${
-      error
-        ? "border-gray-300 text-gray-400 cursor-not-allowed opacity-60"
-        : copied
-        ? "border-green-500 text-green-600 bg-green-50"
-        : "border-gray-500 hover:border-blue-500 text-gray-700"
-    }`}
-  >
-    <span>{copied ? "Copied!" : "⧉ Copy URI"}</span>
-  </button>
+  <CopyButton text={uri} label="Copy URI" />
 
   {/* Open in Wallet */}
   <button
     onClick={() => {
       if (error) return;
-window.open(uri, "_blank");
-setWalletOpened(true);
-setTimeout(() => setWalletOpened(false), 1500);
-
+      window.open(uri, "_blank");
       setWalletOpened(true);
       setTimeout(() => setWalletOpened(false), 1500);
     }}
@@ -835,10 +821,10 @@ setTimeout(() => setWalletOpened(false), 1500);
     <span>⇱ Open in Wallet</span>
   </button>
 
-  {/* I Sent It (Sign-In only) */}
-{/* I Sent It / Submit Code — Sign-In only */}
-{/* I Sent It / Submit Code — Sign-In only */}
-{mode === "signin" && (
+  {/* I Sent It (Sign only) */}
+{/* I Sent It / Submit Code — Sign only */}
+{/* I Sent It / Submit Code — Sign only */}
+{mode === "sign" && (
   <button
     onClick={() => {
       if (!showCodeInput) {

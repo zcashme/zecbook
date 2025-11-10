@@ -102,4 +102,142 @@
   /* Motion tokens */
   --motion-fast: 150ms;
   --motion-medium: 300ms;
+
+  /* ProfileCard Address Chip */
+  --address-chip-border: #d1d5db; /* gray-300 */
+  --address-chip-bg: #f9fafb; /* gray-50 */
+  --address-chip-text: #374151; /* gray-700 */
+  --address-chip-border-copied: #4ade80; /* green-400 */
+  --address-chip-bg-copied: #f0fdf4; /* green-50 */
+
+  /* ProfileCard Action Buttons */
+  --action-button-border: #d1d5db; /* gray-300 */
+  --action-button-bg: rgba(255, 255, 255, 0.80);
+  --action-button-text: #4b5563; /* gray-600 */
+  --action-button-hover-text: #1d4ed8; /* blue-700 */
+  --action-button-hover-border: #60a5fa; /* blue-400 */
+  --action-button-hover-bg: #eff6ff; /* blue-50 */
+
+  /* ProfileCard Text Colors */
+  --profile-title: #1d4ed8; /* blue-700 */
+  --profile-label: #374151; /* gray-700 */
+  --profile-text: #4b5563; /* gray-600 */
+  --profile-text-muted: #9ca3af; /* gray-400 */
+  --profile-text-dark: #1f2937; /* gray-800 */
+  --profile-icon-default: #1d4ed8; /* blue-700 */
+
+  /* Link/Button States */
+  --link-text: #1d4ed8; /* blue-700 */
+  --link-hover: #1e40af; /* blue-800 */
+  --button-delete: #dc2626; /* red-600 */
+  --button-success: #16a34a; /* green-600 */
+  --button-warning: #eab308; /* yellow-600 */
+
+  /* Verification Status Badges */
+  --status-verified-text: #16a34a; /* green-600 */
+  --status-verified-bg: #f0fdf4; /* green-50 */
+  --status-verified-border: #bbf7d0; /* green-200 */
+
+  --status-unverified-text: #1f2937; /* gray-800 */
+  --status-unverified-bg: #fef3c7; /* yellow-50 */
+  --status-unverified-border: #fde68a; /* yellow-200 */
+
+  --status-none-text: #ef4444; /* red-500 */
+  --status-none-bg: #fef2f2; /* red-50 */
+  --status-none-border: #fecaca; /* red-200 */
+
+  --status-info-text: #3b82f6; /* blue-500 */
+
+  /* CopyButton */
+  --copy-button-border: #9ca3af; /* gray-400 */
+  --copy-button-text: #374151; /* gray-700 */
+  --copy-button-hover-border: #3b82f6; /* blue-500 */
+  --copy-button-copied-border: #22c55e; /* green-500 */
+  --copy-button-copied-text: #16a34a; /* green-600 */
+  --copy-button-copied-bg: #f0fdf4; /* green-50 */
+
+  /* HelpIcon */
+  --help-icon-text: #4b5563; /* gray-600 */
+  --help-icon-border: #9ca3af; /* gray-400 */
+  --help-icon-bg: #f9fafb; /* gray-50 */
+  --help-icon-hover-bg: #f3f4f6; /* gray-100 */
+  --help-tooltip-border: #d1d5db; /* gray-300 */
+  --help-tooltip-text: #374151; /* gray-700 */
+
+  /* LetterGridModal */
+  --letter-grid-hover: #facc15; /* yellow-400 */
+
+  /* Directory Filter Buttons */
+  --filter-featured-active-bg: #facc15; /* yellow-400 */
+  --filter-featured-active-text: #78350f; /* yellow-900 */
+  --filter-featured-active-border: #eab308; /* yellow-500 */
+  --filter-featured-text: #b45309; /* yellow-700 */
+  --filter-featured-border: #facc15; /* yellow-400 */
+  --filter-featured-hover-bg: #fefce8; /* yellow-50 */
+
+  --filter-ranked-active-bg: #f97316; /* orange-500 */
+  --filter-ranked-active-text: #ffffff; /* white */
+  --filter-ranked-active-border: #f97316; /* orange-500 */
+  --filter-ranked-text: #c2410c; /* orange-700 */
+  --filter-ranked-border: #fb923c; /* orange-400 */
+  --filter-ranked-hover-bg: #fff7ed; /* orange-50 */
+
+  --filter-verified-active-bg: #16a34a; /* green-600 */
+  --filter-verified-active-text: #ffffff; /* white */
+  --filter-verified-active-border: #16a34a; /* green-600 */
+  --filter-verified-text: #15803d; /* green-700 */
+  --filter-verified-border: #4ade80; /* green-400 */
+  --filter-verified-hover-bg: #f0fdf4; /* green-50 */
+
+  --filter-all-active-bg: #2563eb; /* blue-600 */
+  --filter-all-active-text: #ffffff; /* white */
+  --filter-all-active-border: #2563eb; /* blue-600 */
+  --filter-all-text: #1d4ed8; /* blue-700 */
+  --filter-all-border: #60a5fa; /* blue-400 */
+  --filter-all-hover-bg: #eff6ff; /* blue-50 */
+
+  --filter-stats-active-bg: #374151; /* gray-700 */
+  --filter-stats-active-text: #ffffff; /* white */
+  --filter-stats-active-border: #374151; /* gray-700 */
+  --filter-stats-text: #374151; /* gray-700 */
+  --filter-stats-border: #9ca3af; /* gray-400 */
+  --filter-stats-hover-bg: #f9fafb; /* gray-50 */
+
+  /* Directory Header */
+  --directory-title: #1d4ed8; /* blue-700 */
+  --directory-title-hover: #1e40af; /* blue-800 */
+  --directory-search-text: #1f2937; /* gray-800 */
+  --directory-search-placeholder: #9ca3af; /* gray-400 */
+  --directory-search-border: #3b82f6; /* blue-500 */
+  --directory-clear-button: #6b7280; /* gray-500 */
+  --directory-clear-button-hover: #ef4444; /* red-500 */
+
+  /* Directory Content */
+  --directory-no-results: #9ca3af; /* gray-400 */
+  --directory-section-header: #374151; /* gray-700 */
+  --directory-section-header-hover: #2563eb; /* blue-600 */
+
+  /* ===== TIMELINE PAGE ===== */
+  --timeline-title: #1d4ed8; /* blue-700 */
+  --timeline-search-border: #d1d5db; /* gray-300 */
+  --timeline-search-bg: rgba(255, 255, 255, 0.7); /* white/70 */
+  --timeline-search-focus: #93c5fd; /* blue-300 */
+  --timeline-section-header: #1f2937; /* gray-800 */
+  --timeline-loading: #6b7280; /* gray-500 */
+  --timeline-no-results: #4b5563; /* gray-600 */
+
+  /* ===== POST DETAIL PAGE ===== */
+  --post-detail-border: #d1d5db; /* gray-300 */
+  --post-detail-bg: rgba(255, 255, 255, 0.8); /* white/80 */
+  --post-detail-body-bg: rgba(255, 255, 255, 0.6); /* white/60 */
+  --post-detail-body-border: #e5e7eb; /* gray-200 */
+  --post-detail-body-text: #1f2937; /* gray-800 */
+  --post-detail-meta: #4b5563; /* gray-600 */
+  --post-detail-status-verified-bg: #d1fae5; /* green-100 */
+  --post-detail-status-verified-border: #a7f3d0; /* green-300 */
+  --post-detail-status-verified-text: #065f46; /* green-800 */
+  --post-detail-link: #2563eb; /* blue-600 */
+  --post-detail-button-border: #d1d5db; /* gray-300 */
+  --post-detail-button-bg: rgba(255, 255, 255, 0.7); /* white/70 */
+  --post-detail-button-hover: rgba(255, 255, 255, 0.6); /* white/60 */
 }

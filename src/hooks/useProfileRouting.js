@@ -1,5 +1,5 @@
-﻿import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ADMIN_ADDRESS } from "../DirectoryConstants";
 
 export default function useProfileRouting(
@@ -10,6 +10,7 @@ export default function useProfileRouting(
   setShowDirectory
 ) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // unified normalization: underscores instead of spaces
   const norm = (s = "") =>
@@ -25,7 +26,7 @@ export default function useProfileRouting(
     if (!profiles.length) return;
 
     const match = profiles.find((p) => p.address === selectedAddress);
-    const currentPathRaw = decodeURIComponent(window.location.pathname.slice(1));
+    const currentPathRaw = decodeURIComponent(location.pathname.slice(1));
     const currentSlug = norm(currentPathRaw);
 
     if (match?.name) {
@@ -39,11 +40,11 @@ export default function useProfileRouting(
     } else if (!currentSlug && showDirectory) {
       navigate("/", { replace: false });
     }
-  }, [selectedAddress, profiles, navigate, showDirectory]);
+  }, [selectedAddress, profiles, navigate, showDirectory, location.pathname]);
 
   // React to URL on load or when profiles change
   useEffect(() => {
-    const rawPath = decodeURIComponent(window.location.pathname.slice(1)).trim();
+    const rawPath = decodeURIComponent(location.pathname.slice(1)).trim();
 
     if (!rawPath) {
       setSelectedAddress(null);
@@ -96,5 +97,5 @@ export default function useProfileRouting(
       setSelectedAddress(null);
       setShowDirectory(true);
     }
-  }, [profiles, setSelectedAddress, setShowDirectory]);
+  }, [profiles, setSelectedAddress, setShowDirectory, location.pathname]);
 }

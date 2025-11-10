@@ -1,6 +1,7 @@
 // src/hooks/usePosts.js
 import { useEffect, useMemo, useState } from "react";
 import { getMockPosts } from "../mocks/posts";
+import { getDateKeyUTC } from "../utils/dateUtils";
 
 /**
  * usePosts: provides timeline posts with search and category filtering.
@@ -13,10 +14,10 @@ export default function usePosts() {
   // Filters
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
-    featured: true,
+    featured: false,
     verified: false,
     ranked: false,
-    all: false,
+    all: true,  // Default to showing all posts
   });
 
   useEffect(() => {
@@ -55,16 +56,18 @@ export default function usePosts() {
       );
     }
 
-    // Sort by createdAt desc (timeline)
+    // Sort by createdAt desc (newest to oldest)
     s.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    // Group by author initial to mimic directory letter groups (for visuals)
-    const grouped = s.reduce((acc, p) => {
-      const first = (p.authorName?.[0] || "#").toUpperCase();
-      (acc[first] ||= []).push(p);
+    // Group by date using UTC timezone
+    const groupedByDate = s.reduce((acc, p) => {
+      const date = getDateKeyUTC(p.createdAt);
+      (acc[date] ||= []).push(p);
       return acc;
     }, {});
-    const letters = Object.keys(grouped).sort();
+
+    // Get sorted date keys (newest first)
+    const dates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
 
     const counts = {
       total: allPosts.length,
@@ -73,7 +76,7 @@ export default function usePosts() {
       ranked: allPosts.filter((p) => (p.rankScore ?? 0) > 0).length,
     };
 
-    return { list: s, grouped, letters, counts };
+    return { list: s, groupedByDate, dates, counts };
   }, [allPosts, search, filters]);
 
   const setFilter = (name, value) => {
@@ -84,8 +87,9 @@ export default function usePosts() {
 
   return {
     posts: filtered.list,
-    grouped: filtered.grouped,
-    letters: filtered.letters,
+    allPosts,  // Add unfiltered posts for PostDetail page
+    groupedByDate: filtered.groupedByDate,
+    dates: filtered.dates,
     counts: filtered.counts,
     loading,
     search,

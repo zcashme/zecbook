@@ -1,2 +1,6 @@
 node_modules/
 example-code/
+zcashme/
+.env
+.env.example
+final_review_gate.py

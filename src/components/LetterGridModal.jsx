@@ -10,7 +10,7 @@
               if (input) input.focus();
             }, 150);
           }}
-          className="hover:text-yellow-400 active:scale-125 transition-transform"
+          className="hover:text-[var(--letter-grid-hover)] active:scale-125 transition-transform"
           title="Search"
         >⌕</button>
         {letters.map((l) => (

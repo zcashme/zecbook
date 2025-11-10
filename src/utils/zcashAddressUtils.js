@@ -77,9 +77,10 @@ export function validateZcashAddress(address = "") {
   return { valid: false, type: "unknown", reason: "format_mismatch" };
 }
 
-export function getZcashAddressHint(address = "") {
+export function getZcashAddressHint(address = "", brand = "zcash") {
   const res = validateZcashAddress(address);
-  if (!address) return "Enter your Zcash address (t1…, zs1…, or u1…).";
+  // Brand-specific empty hint to avoid showing the word "Zcash" on zecbook
+  if (!address) return brand === "zecbook" ? "Enter your address (t1…, zs1…, or u1…)." : "Enter your Zcash address (t1…, zs1…, or u1…).";
 
   if (res.type === "viewing_key") {
     return "That looks like a viewing key, not a payment address.";

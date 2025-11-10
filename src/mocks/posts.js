@@ -1,88 +1,84 @@
 // src/mocks/posts.js
-// Mock timeline messages for ZECbook.com. Each post represents a message received by a wallet.
+// Real transactions from unified_transactions_20251110_1339.json
+import transactionsData from '../../unified_transactions_20251110_1339.json';
 
-export const mockPosts = [
-  {
-    id: "p-1001",
-    walletAddress: "u1v0en...7xw2kv",
-    authorName: "aisha",
-    authorAvatar: "/sample.png",
-    authorJoined: "2025-10-01T00:00:00.000Z",
-    title: "Hello Zcashers — testing signed note",
-    body:
-      "I’m exploring ZECbook.com! This is a mock post representing a message delivered to my wallet. Future versions will fetch from Supabase.",
-    createdAt: "2025-10-25T02:15:00.000Z",
-    verifiedCount: 2,
-    featured: true,
-    rankScore: 5,
-    replyAddress: "u1v0en...7xw2kv",
-    tags: ["twitter", "note"],
-  },
-  {
-    id: "p-1002",
-    walletAddress: "u1abc...def456",
-    authorName: "AcidBurn",
-    authorAvatar: "/sample.png",
-    authorJoined: "2025-10-03T00:00:00.000Z",
-    title: "New wallet verified with OTP",
-    body:
-      "Verification succeeded. Posting a short update to confirm my account appears verified.",
-    createdAt: "2025-11-01T12:00:00.000Z",
-    verifiedCount: 3,
-    featured: false,
-    rankScore: 10,
-    replyAddress: "u1abc...def456",
-    tags: ["verified"],
-  },
-  {
-    id: "p-1003",
-    walletAddress: "u1lmn...xyz890",
-    authorName: "Alex",
-    authorAvatar: "/sample.png",
-    authorJoined: "2025-10-05T00:00:00.000Z",
-    title: "My first Zcash message",
-    body:
-      "Posting my first Zcash message via ZECbook.com. Looking forward to replying and signing.",
-    createdAt: "2025-11-03T08:30:00.000Z",
-    verifiedCount: 1,
-    featured: false,
-    rankScore: 0,
-    replyAddress: "u1lmn...xyz890",
-    tags: ["intro"],
-  },
-  {
-    id: "p-1004",
-    walletAddress: "u1foo...bar777",
-    authorName: "AL3X",
-    authorAvatar: "/sample.png",
-    authorJoined: "2025-10-04T00:00:00.000Z",
-    title: "Weekly spotlight",
-    body:
-      "This is a ranked update appearing in the weekly top list. All styles mirror the directory cards.",
-    createdAt: "2025-11-02T16:45:00.000Z",
-    verifiedCount: 2,
-    featured: false,
-    rankScore: 2,
-    replyAddress: "u1foo...bar777",
-    tags: ["ranked", "weekly"],
-  },
-  {
-    id: "p-1005",
-    walletAddress: "u1sdf...ghj555",
-    authorName: "alucard",
-    authorAvatar: "/sample.png",
-    authorJoined: "2025-10-10T00:00:00.000Z",
-    title: "Unverified note",
-    body:
-      "A simple unverified note to demonstrate UI states for badges and borders.",
-    createdAt: "2025-11-03T10:10:00.000Z",
+/**
+ * Transform a transaction into a post format
+ */
+function transformTransaction(tx, index) {
+  // Parse the date to ISO format
+  // Original format: "2025-10-15 4:28:11.0 +00:00:00"
+  // Need to convert to valid ISO: "2025-10-15T04:28:11.000Z"
+  let dateStr = tx.Date;
+  
+  // Remove the timezone offset part and the trailing ".0"
+  dateStr = dateStr.replace(' +00:00:00', '');
+  
+  // Split date and time
+  const parts = dateStr.split(' ');
+  if (parts.length === 2) {
+    const datePart = parts[0]; // "2025-10-15"
+    let timePart = parts[1]; // "4:28:11.0"
+    
+    // Remove trailing .0 and split time components
+    timePart = timePart.replace(/\.0$/, '');
+    const timeComponents = timePart.split(':');
+    
+    // Pad hours, minutes, seconds with leading zeros
+    const hours = timeComponents[0]?.padStart(2, '0') || '00';
+    const minutes = timeComponents[1]?.padStart(2, '0') || '00';
+    const seconds = timeComponents[2]?.padStart(2, '0') || '00';
+    
+    // Reconstruct as valid ISO format
+    dateStr = `${datePart}T${hours}:${minutes}:${seconds}.000Z`;
+  }
+  
+  // Truncate address for display
+  const truncateAddress = (addr) => {
+    if (!addr || addr.length < 20) return addr;
+    return `${addr.slice(0, 8)}...${addr.slice(-6)}`;
+  };
+  
+  // Extract author name from memo if possible, otherwise use truncated address
+  let authorName = truncateAddress(tx["To Address"]);
+  const memoLines = tx.Memo ? tx.Memo.split('\n') : [];
+  
+  // Try to extract a meaningful title from the memo
+  let title = "Transaction";
+  if (memoLines.length > 1) {
+    // Use the second line if it exists and is not empty
+    const secondLine = memoLines[1]?.trim();
+    if (secondLine && secondLine.length > 0) {
+      title = secondLine.length > 50 ? secondLine.slice(0, 50) + '...' : secondLine;
+    }
+  }
+  
+  return {
+    id: tx.TxID,
+    walletAddress: tx["To Address"],
+    authorName: authorName,
+    authorAvatar: "/blue_avatar_shield_transparent.png",
+    authorJoined: dateStr,
+    title: title,
+    body: tx.Memo || "No memo",
+    createdAt: dateStr,
+    date: tx.Date, // Keep original date for display
+    memo: tx.Memo, // Keep original memo for display
     verifiedCount: 0,
     featured: false,
     rankScore: 0,
-    replyAddress: "u1sdf...ghj555",
-    tags: ["note"],
-  },
-];
+    replyAddress: tx["To Address"],
+    tags: [tx.Action?.toLowerCase() || "transaction"],
+    // Additional transaction info
+    action: tx.Action,
+    volume: tx.Volume,
+    fee: tx.Fee,
+    pool: tx.Pool,
+  };
+}
+
+// Transform all transactions into posts
+export const mockPosts = transactionsData.map((tx, index) => transformTransaction(tx, index));
 
 export function getMockPosts() {
   // Return a fresh copy to avoid accidental mutations across components

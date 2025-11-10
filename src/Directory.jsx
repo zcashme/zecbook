@@ -1,15 +1,14 @@
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AddUserForm from "./AddUserForm";
 import ZcashFeedback from "./ZcashFeedback";
 import ZcashStats from "./ZcashStats";
-// import Toast from "./Toast";
-// import useToastMessage from "./hooks/useToastMessage";
 
 import ProfileCard from "./components/ProfileCard";
 import LetterGridModal from "./components/LetterGridModal";
 import AlphabetSidebar from "./components/AlphabetSidebar";
+import TopBar from "./components/TopBar";
 
 import useProfiles from "./hooks/useProfiles";
 import useProfileRouting from "./hooks/useProfileRouting";
@@ -28,7 +27,6 @@ export default function Directory() {
   const { profiles, loading } = useProfiles();
   const { showDirectory, setShowDirectory } = useDirectoryVisibility();
   const showAlpha = useAlphaVisibility(showDirectory);
- // const { toastMsg, showToast, closeToast } = useToastMessage();
 
   const [search, setSearch] = useState("");
   const [activeLetter, setActiveLetter] = useState(null);
@@ -42,8 +40,6 @@ export default function Directory() {
     ranked: false,
     featured: true, // default to featured profiles
   });
-
-  const searchBarRef = useRef(null);
 
   useProfileRouting(
     profiles,
@@ -212,6 +208,48 @@ if (ranked) {
 
   const [showLetterGrid, setShowLetterGrid] = useState(false);
 
+  const resetAllFilters = () =>
+    setFilters({ verified: false, referred: false, ranked: false, featured: false });
+
+  const handleTitleClick = () => {
+    if (showDirectory) {
+      localStorage.setItem("lastScrollY", window.scrollY.toString());
+      setShowDirectory(false);
+    } else {
+      setShowDirectory(true);
+      setTimeout(() => {
+        const lastY = parseFloat(localStorage.getItem("lastScrollY")) || 0;
+        window.scrollTo({ top: lastY, behavior: "instant" });
+      }, 100);
+    }
+  };
+
+  const handleSearchInputChange = (event) => {
+    setSearch(event.target.value);
+    resetAllFilters();
+  };
+
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Enter") {
+      setShowDirectory(true);
+      resetAllFilters();
+    }
+  };
+
+  const handleSearchClear = () => {
+    setSearch("");
+    resetAllFilters();
+  };
+
+  const joinButton = (
+    <button
+      onClick={() => setIsJoinOpen(true)}
+      className="bg-green-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-md transition-all duration-300 hover:shadow-[0_0_12px_rgba(34,197,94,0.7)] hover:bg-green-500"
+    >
+      ＋ Join
+    </button>
+  );
+
   const scrollToLetter = (letter) => {
     const el = document.getElementById(`letter-${letter}`);
     if (el) {
@@ -255,7 +293,7 @@ const toggleFilter = (key) => {
           <span className="w-3 h-3 rounded-full bg-orange-500 animate-twinkle delay-300"></span>
           <span className="w-3 h-3 rounded-full bg-yellow-400 animate-twinkle delay-500"></span>
         </div>
-        <p className="text-sm text-gray-500 font-medium tracking-wide">
+        <p className="text-sm text-[var(--profile-text)] font-medium tracking-wide">
           Loading directory…
         </p>
         <style>{`
@@ -272,9 +310,20 @@ const toggleFilter = (key) => {
 
   return (
     <>
-      <div className="relative max-w-3xl mx-auto p-4 pb-24 pt-20">
-        
+      <TopBar
+        title="Zecbook.com/"
+        secondaryText={`search ${profiles.length} names`}
+        onTitleClick={handleTitleClick}
+        showSearch
+        searchValue={search}
+        searchPlaceholder={`search ${profiles.length} names`}
+        onSearchChange={handleSearchInputChange}
+        onSearchClear={handleSearchClear}
+        onSearchKeyDown={handleSearchKeyDown}
+        rightSlot={joinButton}
+      />
 
+      <div className="relative max-w-3xl mx-auto p-4 pb-24 pt-24">
         {showDirectory && (
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 text-sm flex-wrap">
@@ -285,8 +334,8 @@ const toggleFilter = (key) => {
   onClick={() => toggleFilter("featured")}
   className={`px-2 py-0.5 rounded-full border text-xs font-medium transition-all ${
     filters.featured
-      ? "bg-yellow-400 text-yellow-900 border-yellow-500 shadow-sm"
-      : "bg-transparent text-yellow-700 border-yellow-400 hover:bg-yellow-50"
+      ? "bg-[var(--filter-featured-active-bg)] text-[var(--filter-featured-active-text)] border-[var(--filter-featured-active-border)] shadow-sm"
+      : "bg-transparent text-[var(--filter-featured-text)] border-[var(--filter-featured-border)] hover:bg-[var(--filter-featured-hover-bg)]"
   }`}
 >
   ⭐ Featured ({processedProfiles.filter((p) => p.featured).length})
@@ -297,8 +346,8 @@ const toggleFilter = (key) => {
   onClick={() => toggleFilter("ranked")}
   className={`px-2 py-0.5 rounded-full border text-xs font-medium transition-all ${
     filters.ranked
-      ? "bg-orange-500 text-white border-orange-500 shadow-sm"
-      : "bg-transparent text-orange-700 border-orange-400 hover:bg-orange-50"
+      ? "bg-[var(--filter-ranked-active-bg)] text-[var(--filter-ranked-active-text)] border-[var(--filter-ranked-active-border)] shadow-sm"
+      : "bg-transparent text-[var(--filter-ranked-text)] border-[var(--filter-ranked-border)] hover:bg-[var(--filter-ranked-hover-bg)]"
   }`}
 >
   🔥 Top Rank ({processedProfiles.filter((p) => {
@@ -318,8 +367,8 @@ const toggleFilter = (key) => {
   onClick={() => toggleFilter("verified")}
   className={`px-2 py-0.5 rounded-full border text-xs font-medium transition-all ${
     filters.verified
-      ? "bg-green-600 text-white border-green-600 shadow-sm"
-      : "bg-transparent text-green-700 border-green-400 hover:bg-green-50"
+      ? "bg-[var(--filter-verified-active-bg)] text-[var(--filter-verified-active-text)] border-[var(--filter-verified-active-border)] shadow-sm"
+      : "bg-transparent text-[var(--filter-verified-text)] border-[var(--filter-verified-border)] hover:bg-[var(--filter-verified-hover-bg)]"
   }`}
 >
   🟢 Verified (
@@ -340,8 +389,8 @@ profiles.filter(
   onClick={clearFilters}
   className={`px-2 py-0.5 rounded-full border text-xs font-medium transition-all ${
     !anyFilterActive
-      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-      : "bg-transparent text-blue-700 border-blue-400 hover:bg-blue-50"
+      ? "bg-[var(--filter-all-active-bg)] text-[var(--filter-all-active-text)] border-[var(--filter-all-active-border)] shadow-sm"
+      : "bg-transparent text-[var(--filter-all-text)] border-[var(--filter-all-border)] hover:bg-[var(--filter-all-hover-bg)]"
   }`}
 >
   🔵 All ({profiles.length})
@@ -352,8 +401,8 @@ profiles.filter(
   onClick={() => setShowStats((s) => !s)}
   className={`px-2 py-0.5 rounded-full border text-xs font-medium transition-all ${
     showStats
-      ? "bg-gray-700 text-white border-gray-700 shadow-sm"
-      : "bg-transparent text-gray-700 border-gray-400 hover:bg-gray-50"
+      ? "bg-[var(--filter-stats-active-bg)] text-[var(--filter-stats-active-text)] border-[var(--filter-stats-active-border)] shadow-sm"
+      : "bg-transparent text-[var(--filter-stats-text)] border-[var(--filter-stats-border)] hover:bg-[var(--filter-stats-hover-bg)]"
   }`}
 >
   {showStats ? "◕ Hide stats" : "◔ Show stats"}
@@ -363,7 +412,7 @@ profiles.filter(
 <button
   onClick={() => navigate("/Zechariah")}
   className="px-2 py-0.5 rounded-full border text-xs font-medium transition-all
-             bg-transparent text-gray-700 border-gray-400 hover:bg-gray-50"
+             bg-transparent text-[var(--filter-stats-text)] border-[var(--filter-stats-border)] hover:bg-[var(--filter-stats-hover-bg)]"
 >
   ❤️ Feedback
 </button>
@@ -373,83 +422,6 @@ profiles.filter(
         )}
 
         {showStats && showDirectory && <ZcashStats />}
-
-        {/* Header */}
-        <div
-          ref={searchBarRef}
-          className="fixed top-0 left-0 right-0 bg-transparent/20 backdrop-blur-md z-[40] flex items-center justify-between px-4 py-2 shadow-sm"
-        >
-          <div className="flex items-center gap-2 flex-1">
-  <button
-  onClick={(e) => {
-    e.preventDefault();
-    // mimic "Expand Directory" button behavior
-    if (showDirectory) {
-      localStorage.setItem("lastScrollY", window.scrollY);
-      setShowDirectory(false);
-    } else {
-      setShowDirectory(true);
-      setTimeout(() => {
-        const lastY = parseFloat(localStorage.getItem("lastScrollY")) || 0;
-        window.scrollTo({ top: lastY, behavior: "instant" });
-      }, 100);
-    }
-  }}
-  className="font-bold text-lg text-blue-700 hover:text-blue-800 whitespace-nowrap cursor-pointer"
->
-  Zcash.me/
-</button>
-
-  <div className="relative flex-1 max-w-sm">
-    <input
-      value={search}
-      onChange={(e) => {
-        setSearch(e.target.value);
-        setFilters({ verified: false, referred: false, ranked: false, featured: false });
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          setShowDirectory(true);
-          setFilters({ verified: false, referred: false, ranked: false, featured: false });
-        }
-      }}
-
-      placeholder={`search ${profiles.length} names`}
-      className="w-full px-3 py-2 text-sm bg-transparent text-gray-800 placeholder-gray-400 outline-none border-b border-transparent focus:border-blue-600 pr-8"
-    />
-    {search && (
-      <button
-        onClick={() => setSearch("")}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500 text-lg font-semibold leading-none z-[100]"
-        aria-label="Clear search"
-      >
-        ⛌
-      </button>
-    )}
-  </div>
-</div>
-
-<button
-  onClick={() => setIsJoinOpen(true)}
-  className="ml-3 bg-green-600 text-white px-3 py-1.5 rounded-full text-sm font-semibold 
-  shadow-md transition-all duration-300 z-[50] animate-joinPulse
-  hover:shadow-[0_0_12px_rgba(34,197,94,0.7)] hover:bg-green-500"
->
-  ＋ Join
-</button>
-
-<style>{`
-  @keyframes joinPulse {
-    0%, 100% { transform: scale(.9); box-shadow: 0 0 0 0 rgba(34,197,94, 0.6); }
-    50% { transform: scale(1.0); box-shadow: 0 0 0 8px rgba(34,197,94, 0); }
-  }
-  .animate-joinPulse {
-    animation: joinPulse 5.5s ease-in-out infinite;
-  }
-`}</style>
-
-
-        </div>
 
         {/* Directory List */}
         {showDirectory && (
@@ -479,17 +451,17 @@ profiles.filter(
                   activeLabels.length > 0 ? ` who are ${labelText}` : "";
 
                 return (
-                  <div className="text-center text-gray-400 italic mt-10">
+                  <div className="text-center text-[var(--directory-no-results)] italic mt-10">
                     {search ? (
                       <>
                         No Zcash names match "
-                        <span className="text-blue-700">{search}</span>"
+                        <span className="text-[var(--directory-title)]">{search}</span>"
                         {filterSummary}.
                         <br />
                         {activeLabels.length > 0 ? (
                           <button
                             onClick={clearFilters}
-                            className="text-blue-700 hover:underline font-medium"
+                            className="text-[var(--directory-title)] hover:underline font-medium"
                           >
                             Reset the filters
                           </button>
@@ -498,7 +470,7 @@ profiles.filter(
                             Maybe it’s time to{" "}
                             <button
                               onClick={() => setIsJoinOpen(true)}
-                              className="text-blue-700 hover:underline font-medium"
+                              className="text-[var(--directory-title)] hover:underline font-medium"
                             >
                               claim it
                             </button>
@@ -526,7 +498,7 @@ profiles.filter(
                 <div key={letter} id={`letter-${letter}`} className="mb-6">
                   <h2
                     onClick={() => setShowLetterGrid(true)}
-                    className="text-lg font-semibold text-gray-700 mb-2 cursor-pointer hover:text-blue-600 transition"
+                    className="text-lg font-semibold text-[var(--directory-section-header)] mb-2 cursor-pointer hover:text-[var(--directory-section-header-hover)] transition"
                   >
                     {letter}
                   </h2>

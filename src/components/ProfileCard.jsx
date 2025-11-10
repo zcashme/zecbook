@@ -10,6 +10,7 @@ import ProfileEditor from "./ProfileEditor";
 import HelpIcon from "./HelpIcon";
 import CheckIcon from "../assets/CheckIcon";
 import shareIcon from "../assets/share.svg";
+import computeGoodThru from "../utils/computeGoodThru";
 
 import { motion, AnimatePresence  } from "framer-motion";
 import React from "react";
@@ -25,8 +26,8 @@ function AddressCopyChip({ address }) {
 
   return (
     <div
-      className={`flex items-center gap-2 border text-gray-700 font-mono text-sm rounded-full px-3 py-1.5 shadow-sm w-fit max-w-[90%] transition-colors duration-300 ${
-        copied ? "border-green-400 bg-green-50" : "border-gray-300 bg-gray-50"
+      className={`flex items-center gap-2 border text-[var(--address-chip-text)] font-mono text-sm rounded-full px-3 py-1.5 shadow-sm w-fit max-w-[90%] transition-colors duration-300 ${
+        copied ? "border-[var(--address-chip-border-copied)] bg-[var(--address-chip-bg-copied)]" : "border-[var(--address-chip-border)] bg-[var(--address-chip-bg)]"
       }`}
     >
       <span
@@ -40,13 +41,13 @@ function AddressCopyChip({ address }) {
         onClick={handleCopy}
         className={`flex items-center justify-center transition-all ${
           copied
-            ? "text-green-600 hover:text-green-600"
-            : "text-gray-500 hover:text-blue-600"
+            ? "text-[var(--button-success)] hover:text-[var(--button-success)]"
+            : "text-[var(--profile-text)] hover:text-[var(--link-text)]"
         }`}
         title={copied ? "Copied!" : "Copy address"}
       >
         {copied ? (
-  <CheckIcon className="h-4 w-4 text-green-600 drop-shadow-sm" />
+  <CheckIcon className="h-4 w-4 text-[var(--button-success)] drop-shadow-sm" />
 ) : (
   "⧉"
 )}
@@ -65,13 +66,13 @@ function EditableField({ label, value, fieldKey, multiline }) {
   return (
     <motion.div layout className="mb-3">
       <div className="flex items-center justify-between">
-        <label className="font-semibold text-gray-700">{label}</label>
+        <label className="font-semibold text-[var(--profile-label)]">{label}</label>
         <button
           onClick={() => {
             if (editing) setPendingEdit(fieldKey, draft);
             setEditing(!editing);
           }}
-          className="text-xs text-blue-600 hover:underline"
+          className="text-xs text-[var(--link-text)] hover:underline"
         >
           {editing ? "Save" : "✎ Edit"}
         </button>
@@ -83,7 +84,7 @@ function EditableField({ label, value, fieldKey, multiline }) {
             rows={3}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm w-full resize-none bg-transparent cursor-default text-gray-700"
+            className="border rounded-lg px-3 py-2 text-sm w-full resize-none bg-transparent cursor-default text-[var(--profile-label)]"
           />
         ) : (
           <input
@@ -94,8 +95,8 @@ function EditableField({ label, value, fieldKey, multiline }) {
           />
         )
       ) : (
-        <p className="mt-1 text-gray-600 break-all">
-          {value || <span className="italic text-gray-400">empty</span>}
+        <p className="mt-1 text-[var(--profile-text)] break-all">
+          {value || <span className="italic text-[var(--profile-text-muted)]">empty</span>}
         </p>
       )}
     </motion.div>
@@ -134,7 +135,7 @@ function EditableLinks({ links }) {
 
   return (
     <motion.div layout className="mt-4">
-      <label className="font-semibold text-gray-700 block mb-2">Links</label>
+      <label className="font-semibold text-[var(--profile-label)] block mb-2">Links</label>
       {linkList.map((link, index) => (
         <motion.div
           layout
@@ -150,11 +151,11 @@ function EditableLinks({ links }) {
             className="flex-1 border rounded-lg px-3 py-1.5 text-sm font-mono border-gray-300 focus:border-blue-500"
           />
           {link.id ? (
-            <span className="text-gray-400 text-xs">saved</span>
+            <span className="text-[var(--profile-text-muted)] text-xs">saved</span>
           ) : (
             <button
               onClick={() => removeLink(index)}
-              className="text-xs text-red-600 hover:underline"
+              className="text-xs text-[var(--button-delete)] hover:underline"
             >
               ␡ Remove Link
             </button>
@@ -163,7 +164,7 @@ function EditableLinks({ links }) {
       ))}
       <button
         onClick={addLink}
-        className="text-sm font-semibold text-blue-700 hover:underline mt-1"
+        className="text-sm font-semibold text-[var(--link-text)] hover:underline mt-1"
       >
         ＋ Add Link
       </button>
@@ -217,7 +218,7 @@ function LinkEditor() {
       ))}
       <button
         onClick={addLink}
-        className="text-sm font-semibold text-blue-700 hover:underline mt-1"
+        className="text-sm font-semibold text-[var(--link-text)] hover:underline mt-1"
       >
         ＋ Add Link
       </button>
@@ -232,7 +233,6 @@ const memoryCache = new Map();
 
 export default function ProfileCard({ profile, onSelect, warning, fullView = false }) {
   const [showLinks, setShowLinks] = useState(false);
-  const [copied, setCopied] = React.useState(false);
 
   // 🔗 Lazy-load links from Supabase when needed
 // (linksArray state/effect is defined later; duplicate removed)
@@ -480,7 +480,7 @@ if (isVerified && isRanked) {
   const CheckIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="inline-block w-3.5 h-3.5 text-green-600"
+      className="inline-block w-3.5 h-3.5 text-[var(--button-success)]"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -515,7 +515,7 @@ if (isVerified && isRanked) {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="absolute inset-0 w-full h-full text-blue-700 opacity-20"
+              className="absolute inset-0 w-full h-full text-[var(--profile-icon-default)] opacity-20"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -543,6 +543,7 @@ if (isVerified && isRanked) {
   {(profile.address_verified || (profile.verified_links_count ?? 0) > 0) && (
     <VerifiedBadge
       verified={true}
+      compact
       verifiedCount={
         (profile.verified_links_count ?? 0) +
         (profile.address_verified ? 1 : 0)
@@ -559,7 +560,7 @@ if (isVerified && isRanked) {
 <div className="text-sm text-[var(--card-meta)] flex flex-wrap items-center gap-x-2 gap-y-0.5 leading-snug mt-0.5">
   <span>
     Joined{" "}
-    {new Date(profile.joined_at || profile.created_at || profile.since).toLocaleString("default", {
+    {new Date(profile.joined_at || profile.created_at || profile.since).toLocaleString("en-US", {
       month: "short",
       year: "numeric",
     })}
@@ -570,7 +571,7 @@ if (isVerified && isRanked) {
     (profile.rank_weekly ?? 0) > 0 ||
     (profile.rank_monthly ?? 0) > 0 ||
     (profile.rank_daily ?? 0) > 0) && (
-    <span className="text-gray-400">•</span>
+    <span className="text-[var(--profile-text-muted)]">•</span>
   )}
 
   {(profile.rank_alltime ?? 0) > 0 && (
@@ -628,7 +629,7 @@ if (isVerified && isRanked) {
         e.stopPropagation();
         setMenuOpen((prev) => !prev);
       }}
-      className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--card-avatar-border)] bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
+      className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--action-button-border)] bg-[var(--action-button-bg)] shadow-sm text-[var(--action-button-text)] hover:text-[var(--action-button-hover-text)] hover:border-[var(--action-button-hover-border)] hover:bg-[var(--action-button-hover-bg)] transition-all"
       title="More options"
     >
       ☰
@@ -636,7 +637,7 @@ if (isVerified && isRanked) {
 
     {/* Dropdown Menu */}
     {menuOpen && (
-      <div className="absolute left-0 mt-2 w-36 rounded-xl border border-gray-300 bg-white shadow-lg overflow-hidden z-50 text-sm text-gray-700">
+      <div className="absolute left-0 mt-2 w-36 rounded-xl border border-[var(--action-button-border)] bg-white shadow-lg overflow-hidden z-50 text-sm text-[var(--profile-label)]">
   {/* Determine if profile has any awards */}
 
 
@@ -650,8 +651,8 @@ if (isVerified && isRanked) {
     disabled={!hasAwards}
     className={`w-full text-left px-4 py-2 transition-colors ${
       hasAwards
-        ? "hover:bg-blue-50 text-gray-800"
-        : "text-gray-400 cursor-not-allowed opacity-60"
+        ? "hover:bg-[var(--action-button-hover-bg)] text-[var(--profile-text-dark)]"
+        : "text-[var(--profile-text-muted)] cursor-not-allowed opacity-60"
     }`}
   >
     ⭔ Show Awards
@@ -713,8 +714,8 @@ if (isVerified && isRanked) {
       if (navigator.share) {
         navigator
           .share({
-            title: `${profile.name} on Zcash.me`,
-            text: "Check out this Zcash profile:",
+            title: "Zcash Address Directory",
+            text: `${profile.name} profile on zcash.me`,
             url: shareUrl,
           })
           .catch(() => {});
@@ -723,7 +724,7 @@ if (isVerified && isRanked) {
         alert("Profile link copied to clipboard!");
       }
     }}
-    className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--card-avatar-border)] bg-white/80 shadow-sm text-gray-600 hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-all"
+    className="flex items-center justify-center w-9 h-9 rounded-full border border-[var(--action-button-border)] bg-[var(--action-button-bg)] shadow-sm text-[var(--action-button-text)] hover:text-[var(--action-button-hover-text)] hover:border-[var(--action-button-hover-border)] hover:bg-[var(--action-button-hover-bg)] transition-all"
     title={`Share ${profile.name}`}
   >
 <img
@@ -757,7 +758,7 @@ if (isVerified && isRanked) {
 
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-10 text-blue-700 opacity-50"
+                className="w-10 h-10 text-[var(--profile-icon-default)] opacity-50"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -817,10 +818,11 @@ if (isVerified && isRanked) {
           {/* Name */}
 
 <div className="mt-3 flex items-center justify-center gap-2">
-  <h2 className="text-2xl font-bold text-gray-800">{profile.name}</h2>
+  <h2 className="text-2xl font-bold text-[var(--profile-text-dark)]">{profile.name}</h2>
   {(profile.address_verified || (profile.verified_links_count ?? 0) > 0) && (
     <VerifiedBadge
       verified={true}
+      compact
       verifiedCount={
         (profile.verified_links_count ?? 0) +
         (profile.address_verified ? 1 : 0)
@@ -831,7 +833,7 @@ if (isVerified && isRanked) {
 
 {/* Biography (only if present) */}
 {profile.bio && profile.bio.trim() !== "" && (
-  <p className="mt-1 text-sm text-gray-700 text-center max-w-[90%] mx-auto whitespace-pre-line break-words">
+  <p className="mt-1 text-sm text-[var(--profile-label)] text-center max-w-[90%] mx-auto whitespace-pre-line break-words">
     {profile.bio}
   </p>
 )}
@@ -839,7 +841,7 @@ if (isVerified && isRanked) {
 
 
 {/* Dates */}
-<p className="mt-3 text-xs text-gray-500 flex flex-wrap justify-center gap-x-1 gap-y-0.5">
+<p className="mt-3 text-xs text-[var(--profile-text)] flex flex-wrap justify-center gap-x-1 gap-y-0.5">
   <span className="whitespace-nowrap">
     Joined{" "}
     {new Date(profile.joined_at || profile.created_at || profile.since).toLocaleString("default", {
@@ -870,12 +872,12 @@ if (isVerified && isRanked) {
 
   <span className="whitespace-nowrap">
     Good thru{" "}
-    {profile.good_thru
-      ? new Date(profile.good_thru).toLocaleString("default", {
+    {(profile.good_thru || computeGoodThru(profile.joined_at || profile.created_at || profile.since || null, profile.last_signed_at))
+      ? new Date(profile.good_thru || computeGoodThru(profile.joined_at || profile.created_at || profile.since || null, profile.last_signed_at)).toLocaleString("en-US", {
           month: "short",
           year: "numeric",
         })
-      : "NULL"}
+      : "N/A"}
   </span>
 </p>
 
@@ -908,7 +910,7 @@ if (isVerified && isRanked) {
 }, 400); // small delay to allow label expansion before scroll
 
     }}
-    className="group flex items-center justify-center text-gray-500 hover:text-blue-600 transition-all px-1 overflow-hidden"
+    className="group flex items-center justify-center text-[var(--profile-text)] hover:text-[var(--link-text)] transition-all px-1 overflow-hidden"
     title="Show QR"
   >
     ▣
@@ -918,29 +920,12 @@ if (isVerified && isRanked) {
   </button>
 
   {/* Copy Button */}
-  <button
-    onClick={() => {
-      navigator.clipboard.writeText(profile.address);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }}
-    className={`group flex items-center justify-center transition-all px-1 overflow-hidden ${
-      copied
-        ? "text-green-600 hover:text-green-600"
-        : "text-gray-500 hover:text-blue-600"
-    }`}
-    title={copied ? "Copied!" : "Copy address"}
-  >
-    {copied ? "☑" : "⧉"}
-    <span className="inline-block max-w-0 group-hover:max-w-[50px] opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out text-xs ml-1">
-      {copied ? "Copied!" : "Copy"}
-    </span>
-  </button>
+  <CopyButton text={profile.address} label="Copy address" />
 </div>
     </div>
   </div>
 ) : (
-  <p className="mt-2 text-sm text-gray-500 italic">—</p>
+  <p className="mt-2 text-sm text-[var(--profile-text)] italic">—</p>
 )}
 
 
@@ -950,7 +935,7 @@ if (isVerified && isRanked) {
   className="relative flex flex-col items-center w-full max-w-md mx-auto rounded-2xl border border-gray-300 bg-white/80 backdrop-blur-sm shadow-inner transition-all overflow-hidden mt-5 pb-0"
 >
   {/* Links tray only */}
-  <div className="w-full text-sm text-gray-700 transition-all duration-300 overflow-hidden">
+  <div className="w-full text-sm text-[var(--profile-label)] transition-all duration-300 overflow-hidden">
     <div className="px-4 pt-2 pb-3 bg-transparent/70 border-t border-gray-200 flex flex-col gap-2">
       {linksArray.length > 0 ? (
         linksArray.map((link) => (
@@ -959,24 +944,25 @@ if (isVerified && isRanked) {
             className="flex flex-col sm:flex-row sm:items-center justify-between py-1 border-b border-gray-100 last:border-0"
           >
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-800 truncate">
+              <span className="font-medium text-[var(--profile-text-dark)] truncate">
                 {link.label || "Untitled"}
               </span>
-              <VerifiedBadge verified={link.is_verified} />
+-              <VerifiedBadge verified={link.is_verified} />
++              <VerifiedBadge verified={link.is_verified} compact />
             </div>
             <div className="flex items-center gap-2 mt-0.5 sm:mt-0 text-sm text-[var(--card-meta)] truncate max-w-full sm:max-w-[60%]">
               <a
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="truncate hover:text-blue-600 transition-colors"
+                className="truncate hover:text-[var(--link-text)] transition-colors"
               >
                 {link.url.replace(/^https?:\/\//, "")}
               </a>
               <button
                 onClick={() => navigator.clipboard.writeText(link.url)}
                 title="Copy link"
-                className="text-gray-400 hover:text-blue-600 transition-colors text-sm"
+                className="text-[var(--profile-text-muted)] hover:text-[var(--link-text)] transition-colors text-sm"
               >
                 ⧉
               </button>
@@ -984,7 +970,7 @@ if (isVerified && isRanked) {
           </div>
         ))
       ) : (
-        <p className="italic text-gray-500 text-center">
+        <p className="italic text-[var(--profile-text)] text-center">
           No contributed links yet.
         </p>
       )}
@@ -997,10 +983,10 @@ if (isVerified && isRanked) {
             <div
               className={`mt-5 text-xs rounded-md px-4 py-2 border text-center mx-auto w-fit transition-colors duration-300 ${
                 hasVerifiedContent
-                  ? "text-green-600 bg-green-50 border-green-200"
+                  ? "text-[var(--status-verified-text)] bg-[var(--status-verified-bg)] border-[var(--status-verified-border)]"
                   : hasUnverifiedLinks
-                  ? "text-gray-800 bg-yellow-50 border-yellow-200"
-                  : "text-red-500 bg-red-50 border-red-200"
+                  ? "text-[var(--status-unverified-text)] bg-[var(--status-unverified-bg)] border-[var(--status-unverified-border)]"
+                  : "text-[var(--status-none-text)] bg-[var(--status-none-bg)] border-[var(--status-none-border)]"
               }`}
             >
               {hasVerifiedContent ? (
@@ -1023,10 +1009,10 @@ if (isVerified && isRanked) {
                 onClick={() => setShowDetail(!showDetail)}
                 className={`ml-2 hover:underline text-xs font-semibold ${
                   hasVerifiedContent
-                    ? "text-green-600"
+                    ? "text-[var(--status-verified-text)]"
                     : hasUnverifiedLinks
-                    ? "text-gray-800"
-                    : "text-blue-500"
+                    ? "text-[var(--status-unverified-text)]"
+                    : "text-[var(--status-info-text)]"
                 }`}
               >
                 {showDetail ? "Hide" : "More"}
@@ -1035,7 +1021,7 @@ if (isVerified && isRanked) {
             {showDetail && (
   <div className="mt-1 text-xs space-y-1">
     {hasVerifiedContent ? (
-      <div className="text-gray-700">
+      <div className="text-[var(--profile-label)]">
 
         <div>{profile.name} verified their address with OTP.</div>
         <div>
@@ -1047,7 +1033,7 @@ if (isVerified && isRanked) {
 </div>
       </div>
     ) : hasUnverifiedLinks ? (
-      <div className="text-gray-800 space-y-1">
+      <div className="text-[var(--profile-text-dark)] space-y-1">
         <div>
           {profile.name} can verify their address or links to increase trust and
           visibility.
@@ -1055,7 +1041,7 @@ if (isVerified && isRanked) {
       </div>
     ) : (
       !profile.address_verified && (
-        <div className="text-gray-800 space-y-1">
+        <div className="text-[var(--profile-text-dark)] space-y-1">
           <div> There are other profiles with this name.</div>
           <div>
             {" "}
@@ -1105,7 +1091,7 @@ onClick={() => {
   </div>
 
 <div className="relative">
-  <h3 className="text-lg font-semibold text-gray-700 text-center">Edit Profile</h3>
+  <h3 className="text-lg font-semibold text-[var(--profile-label)] text-center">Edit Profile</h3>
 </div>
 
   <ProfileEditor profile={profile} />

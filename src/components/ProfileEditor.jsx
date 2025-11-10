@@ -379,7 +379,16 @@ useEffect(() => {
     <div className="mb-3">
       <label className="block font-semibold text-gray-700 mb-1 flex items-center justify-between">
         <span>Profile Image URL</span>
-        { !compact && <HelpIcon text="Link to PNG or JPG. Search 'free image link host'.  Try remove.bg & compresspng.com. " /> }
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handleChange("profile_image_url", originals.profile_image_url || "")}
+            className="text-xs font-semibold text-gray-500 hover:text-gray-700 underline"
+          >
+            Reset
+          </button>
+          { !compact && <HelpIcon text="Link to PNG or JPG. Search 'free image link host'.  Try remove.bg & compresspng.com. " /> }
+        </div>
       </label>
       <input
         type="text"
@@ -395,7 +404,6 @@ useEffect(() => {
       <div className="flex justify-between items-center mb-1">
         <label className="block font-semibold text-gray-700">Links</label>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={resetLinks} className="text-xs font-semibold text-gray-500 hover:text-gray-700 underline">Reset</button>
           { !compact && <HelpIcon text="Link verification requires OTP. Verified links cannot be changed." /> }
         </div>
       </div>
